@@ -9,7 +9,7 @@ const gallery = document.getElementById("gallery-viewport");
 const newFloorplansButton = document.getElementById("new-floorplans");
 const prevButton = document.getElementById("prev-page-button");
 const nextButton = document.getElementById("next-page-button");
-const hoverSFX = new Audio("../audio/hover.mp3");
+const hoverSFX = new Audio("./audio/hover.mp3");
 
 const launchDate = new Date('2026-01-09T00:00:00').getTime();
 const today = debugDay ? new Date(debugDay) : new Date();
@@ -155,7 +155,7 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
 
     // Playing sfx
     if (playsound) {
-        const draftSFX = new Audio("../audio/start-draft.mp3");
+        const draftSFX = new Audio("/start-draft.mp3");
         draftSFX.volume = 0.5;
         draftSFX.play();
     }
@@ -374,7 +374,7 @@ function choseFloorplan(name) {
 
     // Playing sfx
     if (playsound) {
-        const draftSFX = new Audio("../audio/end-draft.mp3");
+        const draftSFX = new Audio("./audio/end-draft.mp3");
         draftSFX.volume = 1.0;
         draftSFX.play();
     }
@@ -577,7 +577,7 @@ function toggleUIContainer(open, container) {
 
     // Playing sfx
     if (playsound) {
-        const openSFXlist = ["../audio/open0.mp3", "../audio/open1.mp3", "../audio/open2.mp3", "../audio/open3.mp3", "../audio/open4.mp3", "../audio/open5.mp3"];
+        const openSFXlist = ["./audio/open0.mp3", "./audio/open1.mp3", "./audio/open2.mp3", "./audio/open3.mp3", "./audio/open4.mp3", "./audio/open5.mp3"];
         const openSFX = new Audio(openSFXlist[Math.floor(Math.random() * openSFXlist.length)]);
         openSFX.volume = 0.5;
         openSFX.play();
@@ -604,7 +604,7 @@ function changeLetterPage(page) {
 
     // Playing sfx
     if (playsound) {
-        const pageSFXlist = ["../audio/page0.mp3", "../audio/page1.mp3", "../audio/page2.mp3", "../audio/page3.mp3"];
+        const pageSFXlist = ["./audio/page0.mp3", "./audio/page1.mp3", "./audio/page2.mp3", "./audio/page3.mp3"];
         const pageSFX = new Audio(pageSFXlist[Math.floor(Math.random() * pageSFXlist.length)]);
         pageSFX.volume = 0.5;
         pageSFX.play();
@@ -650,7 +650,7 @@ function initEnding() {
     document.getElementById("streak-num").innerText = localData.streak;
 
     // Playing ending music
-    const endingMusic = new Audio("../audio/call-it-a-day.mp3");
+    const endingMusic = new Audio("./audio/call-it-a-day.mp3");
     if (playsound) {
         endingMusic.volume = 0.5;
         endingMusic.play();
@@ -683,7 +683,7 @@ function initEnding() {
 
         // Fading out music
         if (playsound) {
-            const exitSFX = new Audio("../audio/exit-click.mp3");
+            const exitSFX = new Audio("./audio/exit-click.mp3");
             exitSFX.volume = 0.5;
             exitSFX.play();
 
@@ -702,4 +702,5 @@ function initEnding() {
 
 function saveData() {
     localStorage.setItem('localData', JSON.stringify(localData));
+
 }
