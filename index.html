@@ -4,9 +4,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Blueprintle</title>
-        <link rel="icon" href="/assets/favicon.ico.png" type="image/x-icon">
-        <link rel="stylesheet" href="/stylesheets/main.css">
-        <link rel="stylesheet" href="/stylesheets/colors.css">
+        <link rel="icon" href="./assets/favicon.ico.png" type="image/x-icon">
+        <link rel="stylesheet" href="./stylesheets/main.css">
+        <link rel="stylesheet" href="./stylesheets/colors.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
@@ -15,53 +15,53 @@
         <span class="loading-text hidden">Loading page...</span>
         <div id="loading-container">
             <div id="draftsheet-container" class="draftsheet-container">
-                <img class="draftsheet" src="/assets/draftsheet.png">
-                <img id="draft-select-text" class="draft-select-text" src="/assets/draft-select-text.png">
+                <img class="draftsheet" src="./assets/draftsheet.png">
+                <img id="draft-select-text" class="draft-select-text" src="./assets/draft-select-text.png">
                 <div class="measure-line-container">
-                    <img class="measure-arrow" src="/assets/measure-arrow.png" style="rotate: 180deg;">
+                    <img class="measure-arrow" src="./assets/measure-arrow.png" style="rotate: 180deg;">
                     <span id="measure-line" class="measure-line"></span>
-                    <img class="measure-arrow" src="/assets/measure-arrow.png">
+                    <img class="measure-arrow" src="./assets/measure-arrow.png">
                 </div>
                 <div id="gallery-viewport" class="gallery-viewport">
                     <div id="gallery-track" class="gallery-track"></div>
                 </div>
                 <div id="search-container" class="search-container">
-                    <img class="search-background" src="/assets/search-background.png">
+                    <img class="search-background" src="./assets/search-background.png">
                     <input id="search-input" class="search-input" type="text" placeholder="Search floorplans..." autocomplete="off" spellcheck="false">
                 </div>
             </div>
 
             <div class="ui-container">
                 <div class="steps-container" >
-                    <img class="steps-icon" src="/assets/steps-icon.png">
+                    <img class="steps-icon" src="./assets/steps-icon.png">
                     <span id="steps-counter" class="steps-counter">0</span>
                 </div>
 
                 <div id="letter-container" class="letter-container hidden">
-                    <img id="intro-letter" class="intro-letter" src="/assets/letter0.png">
-                    <button class="close-button clickable"><img class="close-icon" src="/assets/close-icon.png"></button>
+                    <img id="intro-letter" class="intro-letter" src="./assets/letter0.png">
+                    <button class="close-button clickable"><img class="close-icon" src="./assets/close-icon.png"></button>
                     <div class="page-buttons-container">
                         <button id="prev-page-button" class="letter-page-button clickable">
-                            <img class="letter-page-icon" src="/assets/left-icon.png">
+                            <img class="letter-page-icon" src="./assets/left-icon.png">
                             <span class="letter-page-text">Prev page</span>
                         </button>
                         <button id="next-page-button" class="letter-page-button clickable">
-                            <img class="letter-page-icon" src="/assets/right-icon.png">
+                            <img class="letter-page-icon" src="./assets/right-icon.png">
                             <span class="letter-page-text">Next page</span>
                         </button>
                     </div>
                 </div>
 
                 <div id="kofi-container" class="kofi-container hidden">
-                    <img class="kofi-note" src="/assets/kofi-note.png">
+                    <img class="kofi-note" src="./assets/kofi-note.png">
                     <a class="kofi-link" href="https://ko-fi.com/therealpounds" target="_blank">https://ko-fi.com/therealpounds</a>
-                    <button id="close-button" class="close-button clickable"><img class="close-icon" src="/assets/close-icon.png"></button>
+                    <button id="close-button" class="close-button clickable"><img class="close-icon" src="./assets/close-icon.png"></button>
                 </div>
 
                 <div class="extra-buttons-container">
-                    <button id="mute-button" class="extra-button clickable"><img id="mute-icon" class="extra-icon" src="/assets/unmuted-icon.png"></button>
-                    <button id="letter-button" class="extra-button clickable"><img class="extra-icon" src="/assets/letter-icon.png"></button>
-                    <button id="kofi-button" class="extra-button clickable"><img class="extra-icon" src="/assets/kofi-icon.png"></button>
+                    <button id="mute-button" class="extra-button clickable"><img id="mute-icon" class="extra-icon" src="./assets/unmuted-icon.png"></button>
+                    <button id="letter-button" class="extra-button clickable"><img class="extra-icon" src="./assets/letter-icon.png"></button>
+                    <button id="kofi-button" class="extra-button clickable"><img class="extra-icon" src="./assets/kofi-icon.png"></button>
                 </div>
 
                 <div id="ending-container" class="ending-container hidden">
@@ -69,14 +69,14 @@
                     <div class="ending-center-container">
                         <div id="today-floorplan-container" class="today-floorplan-container">
                             <span class="today-floorplan-text">Today's Floorplan:</span>
-                            <img id="today-floorplan" class="today-floorplan" src="/assets/floorplans/antechamber.png">
+                            <img id="today-floorplan" class="today-floorplan" src="./assets/floorplans/antechamber.png">
                         </div>
                         <div class="ending-stats-container">
                             <div id="ihtmc" class="i-have-too-many-containers">
                                 <div class="ending-div-line"></div>
-                                <span class="ending-stat-text">Guesses Taken: <span id="guesses-num" class="ending-stat-num">5</span></span>
-                                <span class="ending-stat-text">Your Average: <span id="average-num" class="ending-stat-num">5.1</span></span>
-                                <span class="ending-stat-text">Daily Streak: <span id="streak-num" class="ending-stat-num">5.1</span></span>
+                                <span class="ending-stat-text">Guesses Taken: <span id="guesses-num" class="ending-stat-num"></span></span>
+                                <span class="ending-stat-text">Your Average: <span id="average-num" class="ending-stat-num"></span></span>
+                                <span class="ending-stat-text">Daily Streak: <span id="streak-num" class="ending-stat-num"></span></span>
                                 <div class="ending-div-line"></div>
                             </div>
                             <div id="timer-container" class="timer-container">
@@ -86,20 +86,20 @@
                         </div>
                     </div>
                     <div class="ending-exit-container">
-                        <button id="ending-exit-button" class="ending-exit-button clickable"><img class="ending-exit-icon clickable" src="/assets/exit-icon.png"></button>
+                        <button id="ending-exit-button" class="ending-exit-button clickable"><img class="ending-exit-icon clickable" src="./assets/exit-icon.png"></button>
                     </div>
                 </div>
             </div>
             
             <div class="main-container vertical-container">
-                <img class="logo" src="/assets/Logo.png">
+                <img class="logo" src="./assets/Logo.png">
                 <div id="floorplans-container" class="vertical-container">
-                    <img class="down-arrow" src="/assets/down arrow.png">
+                    <img class="down-arrow" src="./assets/down arrow.png">
                 </div>
-                <button id="new-floorplans" class="floorplan-button clickable"><img class="floorplan" src="/assets/new-floorplans.png"></button>
+                <button id="new-floorplans" class="floorplan-button clickable"><img class="floorplan" src="./assets/new-floorplans.png"></button>
             </div>
         </div>
 
-        <script type="module" src="/scripts/main.js"></script>
+        <script type="module" src="./scripts/main.js"></script>
     </body>
 </html>

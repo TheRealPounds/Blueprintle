@@ -1,37 +1,37 @@
 @font-face {
     font-family: 'Paramore';
-    src: url("/assets/fonts/ParamoreSelfTitled.otf");
+    src: url("../assets/fonts/ParamoreSelfTitled.otf");
 }
 
 @font-face {
     font-family: 'Formosa';
-    src: url("/assets/fonts/Formosa.otf");
+    src: url("../assets/fonts/Formosa.otf");
 }
 
 @font-face {
     font-family: 'Questa';
-    src: url("/assets/fonts/questa-medium.otf");
+    src: url("../assets/fonts/questa-medium.otf");
 }
 
 @font-face {
     font-family: 'Bolognaise';
-    src: url("/assets/fonts/Bolognaise.ttf");
+    src: url("../assets/fonts/Bolognaise.ttf");
 }
 
 @font-face {
     font-family: 'Schoolbook';
-    src: url("/assets/fonts/SchoolbookBold.ttf");
+    src: url("../assets/fonts/SchoolbookBold.ttf");
 }
 
 body {
-    background-image: url("/assets/Background.png");
+    background-image: url("../assets/Background.png");
     background-size: 100% auto;
     background-repeat: repeat-y;
     height: 100vh;
     padding: 0;
     margin: 0;
     overflow-x: hidden;
-    cursor: url("/assets/cursor-default.png") 32 24, default;
+    cursor: url("../assets/cursor-default.png") 32 24, default;
     scroll-behavior: auto !important;
 }
 
@@ -72,12 +72,12 @@ body {
 }
 
 .clickable:hover {
-    cursor: url("/assets/cursor-pointer.png") 32 21, pointer;
+    cursor: url("../assets/cursor-pointer.png") 32 21, pointer;
     transform: scale(1.05);
 }
 
 .disabled:hover {
-    cursor: url("/assets/cursor-faint.png") 32 24, default ;
+    cursor: url("../assets/cursor-faint.png") 32 24, default ;
 }
 
 .floorplan-button {
@@ -311,7 +311,7 @@ body {
 }
 
 .search-input:hover {
-    cursor: url("/assets/cursor-text.png") 31 34, text;
+    cursor: url("../assets/cursor-text.png") 31 34, text;
 }
 
 .floorplans-container {
@@ -424,7 +424,7 @@ body {
 
 .letter-page-button.disabled {
     opacity: 0;
-    cursor: url("/assets/cursor-default.png") 32 24, default;
+    cursor: url("../assets/cursor-default.png") 32 24, default;
 }
 
 .letter-page-icon {

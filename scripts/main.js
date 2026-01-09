@@ -1,6 +1,6 @@
 console.log("Main JS loaded");
 
-import { floorplans } from "./floorplans.js";
+import { floorplans } from "../scripts/floorplans.js";
 
 const debug = new URLSearchParams(document.location.search).get("debug") === "true" ? true : false;
 const debugDay = new URLSearchParams(document.location.search).get("day");
@@ -9,7 +9,7 @@ const gallery = document.getElementById("gallery-viewport");
 const newFloorplansButton = document.getElementById("new-floorplans");
 const prevButton = document.getElementById("prev-page-button");
 const nextButton = document.getElementById("next-page-button");
-const hoverSFX = new Audio("/audio/hover.mp3");
+const hoverSFX = new Audio("../audio/hover.mp3");
 
 const launchDate = new Date('2026-01-09T00:00:00').getTime();
 const today = debugDay ? new Date(debugDay) : new Date();
@@ -103,7 +103,7 @@ localData.guesses.forEach((guess) => {
 // Setting mute status based on local data
 if (!localData.playsound) {
     playsound = false;
-    document.getElementById("mute-icon").src = `/assets/muted-icon.png`;
+    document.getElementById("mute-icon").src = `./assets/muted-icon.png`;
 }
 
 
@@ -155,7 +155,7 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
 
     // Playing sfx
     if (playsound) {
-        const draftSFX = new Audio("/audio/start-draft.mp3");
+        const draftSFX = new Audio("../audio/start-draft.mp3");
         draftSFX.volume = 0.5;
         draftSFX.play();
     }
@@ -169,7 +169,7 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
     let galleryHTML = "";
     floorplans.forEach(fp => {
         galleryHTML += `
-            <button class="floorplan-button clickable gallery-floorplan" data-name="${fp.name}"><img class="gallery-item" src="/assets/floorplans/${fp.name}.png"></button>
+            <button class="floorplan-button clickable gallery-floorplan" data-name="${fp.name}"><img class="gallery-item" src="./assets/floorplans/${fp.name}.png"></button>
         `
     });
     document.getElementById("gallery-track").innerHTML = galleryHTML;
@@ -351,7 +351,7 @@ document.getElementById("kofi-button").addEventListener("click", (event) => {
 // Mute button
 document.getElementById("mute-button").addEventListener("click", (event) => {
     playsound = !playsound;
-    document.getElementById("mute-icon").src = `/assets/${playsound ? "un" : ""}muted-icon.png`;
+    document.getElementById("mute-icon").src = `./assets/${playsound ? "un" : ""}muted-icon.png`;
 
     // Saving mute preference to local data
     localData.playsound = playsound;
@@ -374,7 +374,7 @@ function choseFloorplan(name) {
 
     // Playing sfx
     if (playsound) {
-        const draftSFX = new Audio("/audio/end-draft.mp3");
+        const draftSFX = new Audio("../audio/end-draft.mp3");
         draftSFX.volume = 1.0;
         draftSFX.play();
     }
@@ -503,7 +503,7 @@ function drawFloorplan(name) {
         gemsHTML = `<span class="info-text n/a">None</span>`;
     } else {
         for(let i = 0; i < floorplan.cost; i++) {
-            gemsHTML += `<img class="gem" src="/assets/gem.png">`
+            gemsHTML += `<img class="gem" src="./assets/gem.png">`
         }
     }
 
@@ -513,7 +513,7 @@ function drawFloorplan(name) {
     let i = 0;
     floorplan.types.forEach(type => {
         i++;
-        typesHTML += `<span class="info-text ${type.toLowerCase().replaceAll(' ', '-').replaceAll('"', '')}">${hasIcon.includes(type) ? `<img class="type-icon" src="/assets/${type.toLowerCase()}-type-icon.png">` : ""}${type}${i === floorplan.types.length ? "" : ", "}</span>`;
+        typesHTML += `<span class="info-text ${type.toLowerCase().replaceAll(' ', '-').replaceAll('"', '')}">${hasIcon.includes(type) ? `<img class="type-icon" src="./assets/${type.toLowerCase()}-type-icon.png">` : ""}${type}${i === floorplan.types.length ? "" : ", "}</span>`;
     });
 
     const rarityNames = ["n/a", "Commonplace", "Standard", "Unusual", "Rare", "Rumored"];
@@ -522,22 +522,22 @@ function drawFloorplan(name) {
     newEntryElement.classList.add("floorplan-entry");
     newEntryElement.innerHTML = `
         <div class="flex-row">
-            <img class="floorplan" src="/assets/floorplans/${name}.png">
+            <img class="floorplan" src="./assets/floorplans/${name}.png">
             <div class="info-container">
                 <div><span class="${answers.cost}">COST</span><span class="colon">:</span>${gemsHTML}</div>
                 <div><span class="${answers.type}">TYPE</span><span class="colon">:</span>${typesHTML}</div>
                 <div>
                     <span class="${answers.rarity}">RARITY</span><span class="colon">:</span>
-                    ${floorplan.rarity >= 1 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="/assets/commonplace-dot.png">` : ""}
-                    ${floorplan.rarity >= 2 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="/assets/standard-dot.png">` : ""}
-                    ${floorplan.rarity >= 3 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="/assets/unusual-dot.png">` : ""}
-                    ${floorplan.rarity >= 4 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="/assets/rare-dot.png">` : ""}
+                    ${floorplan.rarity >= 1 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="./assets/commonplace-dot.png">` : ""}
+                    ${floorplan.rarity >= 2 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="./assets/standard-dot.png">` : ""}
+                    ${floorplan.rarity >= 3 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="./assets/unusual-dot.png">` : ""}
+                    ${floorplan.rarity >= 4 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="./assets/rare-dot.png">` : ""}
                     <span class="info-text ${rarityNames[floorplan.rarity].toLowerCase()}">${rarityNames[floorplan.rarity]}</span>
                 </div>
-                <div><span class="${answers.entrances}">ENTRANCES</span><span class="colon">:</span><img class="type-icon" src="/assets/${floorplan.entrances}-icon.png"></div>
+                <div><span class="${answers.entrances}">ENTRANCES</span><span class="colon">:</span><img class="type-icon" src="./assets/${floorplan.entrances}-icon.png"></div>
             </div>
         </div>
-        ${guessedCorrectly ? "" : hintText + `<img class="down-arrow" src="/assets/down arrow.png">`}
+        ${guessedCorrectly ? "" : hintText + `<img class="down-arrow" src="./assets/down arrow.png">`}
     `;
 
     // Adding new entry to the DOM with animation
@@ -577,7 +577,7 @@ function toggleUIContainer(open, container) {
 
     // Playing sfx
     if (playsound) {
-        const openSFXlist = ["/audio/open0.mp3", "/audio/open1.mp3", "/audio/open2.mp3", "/audio/open3.mp3", "/audio/open4.mp3", "/audio/open5.mp3"];
+        const openSFXlist = ["../audio/open0.mp3", "../audio/open1.mp3", "../audio/open2.mp3", "../audio/open3.mp3", "../audio/open4.mp3", "../audio/open5.mp3"];
         const openSFX = new Audio(openSFXlist[Math.floor(Math.random() * openSFXlist.length)]);
         openSFX.volume = 0.5;
         openSFX.play();
@@ -604,7 +604,7 @@ function changeLetterPage(page) {
 
     // Playing sfx
     if (playsound) {
-        const pageSFXlist = ["/audio/page0.mp3", "/audio/page1.mp3", "/audio/page2.mp3", "/audio/page3.mp3"];
+        const pageSFXlist = ["../audio/page0.mp3", "../audio/page1.mp3", "../audio/page2.mp3", "../audio/page3.mp3"];
         const pageSFX = new Audio(pageSFXlist[Math.floor(Math.random() * pageSFXlist.length)]);
         pageSFX.volume = 0.5;
         pageSFX.play();
@@ -612,7 +612,7 @@ function changeLetterPage(page) {
 
     // Changing page
     letterPage = page;
-    document.getElementById("intro-letter").src = `/assets/letter${page}.png`;
+    document.getElementById("intro-letter").src = `./assets/letter${page}.png`;
 
     if (page === 0) {
         prevButton.classList.add("disabled");
@@ -644,13 +644,13 @@ function initEnding() {
     // Setting stats from local data and floorplan image to today's floorplan
     endingOn = true;
     document.getElementById("day-text").innerText = "Day " + daysSinceLaunch;
-    document.getElementById("today-floorplan").src = `/assets/floorplans/${correctFloorplan.name}.png`;
+    document.getElementById("today-floorplan").src = `./assets/floorplans/${correctFloorplan.name}.png`;
     document.getElementById("guesses-num").innerText = steps;
     document.getElementById("average-num").innerText = Math.round(((localData.totalGuesses / localData.wins) + Number.EPSILON) * 10) / 10;
     document.getElementById("streak-num").innerText = localData.streak;
 
     // Playing ending music
-    const endingMusic = new Audio("/audio/call-it-a-day.mp3");
+    const endingMusic = new Audio("../audio/call-it-a-day.mp3");
     if (playsound) {
         endingMusic.volume = 0.5;
         endingMusic.play();
@@ -683,7 +683,7 @@ function initEnding() {
 
         // Fading out music
         if (playsound) {
-            const exitSFX = new Audio("/audio/exit-click.mp3");
+            const exitSFX = new Audio("../audio/exit-click.mp3");
             exitSFX.volume = 0.5;
             exitSFX.play();
 
