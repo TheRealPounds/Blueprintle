@@ -155,7 +155,7 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
 
     // Playing sfx
     if (playsound) {
-        const draftSFX = new Audio("/start-draft.mp3");
+        const draftSFX = new Audio("./audio/start-draft.mp3");
         draftSFX.volume = 0.5;
         draftSFX.play();
     }
@@ -704,3 +704,4 @@ function saveData() {
     localStorage.setItem('localData', JSON.stringify(localData));
 
 }
+
