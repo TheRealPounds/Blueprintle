@@ -1,0 +1,71 @@
+.red-room {
+    color: #C20F00;
+}
+
+.green-room {
+    color: #52B74F;
+}
+
+.hallway {
+    color: #E78F52;
+}
+
+.bedroom {
+    color: #9A6FCF;
+}
+
+.shop {
+    color: #D2BE60;
+}
+
+.blackprint {
+    color: #6A6E7B;
+}
+
+.blueprint {
+    color: #0093EC;
+}
+
+.puzzle {
+    color: #53A8A5;
+}
+
+.dead-end {
+    color: #6A6E7B;
+}
+
+.addition {
+    color: #FFEDA3;
+}
+
+.n\/a {
+    color: #8C8C8C;
+}
+
+.commonplace {
+    color: #796569;
+}
+
+.standard {
+    color: #9D636F;
+}
+
+.unusual {
+    color: #CF5772;
+}
+
+.rare {
+    color: #FF3B66;
+}
+
+.correct {
+    color: #6AAA64;
+}
+
+.close {
+    color: #C9B458;
+}
+
+.wrong {
+    color: #787C7E;
+}
