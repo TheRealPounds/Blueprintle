@@ -9,9 +9,9 @@ const gallery = document.getElementById("gallery-viewport");
 const newFloorplansButton = document.getElementById("new-floorplans");
 const prevButton = document.getElementById("prev-page-button");
 const nextButton = document.getElementById("next-page-button");
-const hoverSFX = new Audio("./audio/hover.mp3");
+const colorTextElm = document.getElementById("color-filter-text");
 
-const launchDate = new Date('2026-01-09T00:00:00').getTime();
+const launchDate = new Date('2026-01-15T00:00:00').getTime();
 const today = debugDay ? new Date(debugDay) : new Date();
 today.setHours(0, 0, 0, 0);
 const daysSinceLaunch = Math.floor((today.getTime() - launchDate) / 86400000);
@@ -19,12 +19,32 @@ let tomorrow = new Date(today);
 tomorrow.setDate(tomorrow.getDate() + 1);
 tomorrow = tomorrow.getTime();
 
+const hoverSFX = new Audio("./audio/hover.mp3");
+const draftStartSFX = new Audio("./audio/start-draft.mp3");
+draftStartSFX.volume = 0.5;
+const draftEndSFX = new Audio("./audio/end-draft.mp3");
+const openSFXlist = [new Audio("./audio/open0.mp3"), new Audio("./audio/open1.mp3"), new Audio("./audio/open2.mp3"), new Audio("./audio/open3.mp3"), new Audio("./audio/open4.mp3"), new Audio("./audio/open5.mp3")];
+openSFXlist.forEach((sfx) => {sfx.volume = 0.5;});
+const pageSFXlist = [new Audio("./audio/page0.mp3"), new Audio("./audio/page1.mp3"), new Audio("./audio/page2.mp3"), new Audio("./audio/page3.mp3")];
+pageSFXlist.forEach((sfx) => {sfx.volume = 0.5;});
+const endingMusic = new Audio("./audio/call-it-a-day.mp3");
+endingMusic.volume = 0.5;
+const exitSFX = new Audio("./audio/exit-click.mp3");
+exitSFX.volume = 0.5;
 
+const itemWidth = window.innerWidth * 0.16;
 let isScrolling = false;
 let scrollDirection = 0;
 let animationFrameId = null;
 let scrollTimer = null;
 let shownsItems = 0;
+let isMouseDown = false;
+let isDragging = false;
+let startX;
+let scrollLeft;
+let velX = 0;
+let momentumID;
+let lastSelectedIndex = null;
 
 let guessedCorrectly = false;
 let steps = 0;
@@ -33,6 +53,8 @@ let playsound = true;
 let endingOn = false;
 let hints = 0;
 let hintText = "";
+let searchFilter = "";
+let colorFilter = "none";
 
 
 // Hashing function from https://github.com/cprosche/mulberry32
@@ -130,13 +152,13 @@ setInterval(function() {
 
 
 // Adding hover sound effect to all clickables
-if (playsound) {
-    document.querySelectorAll(".clickable").forEach((button) => {
-        button.addEventListener("mouseenter", () => {
+document.querySelectorAll(".clickable").forEach((button) => {
+    button.addEventListener("mouseenter", () => {
+        if (playsound) {
             hoverSFX.play();
-        });
+        }
     });
-}
+});
 
 
 // New Floorplans Button Click
@@ -147,17 +169,22 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
     newFloorplansButton.classList.add("disabled");
 
     // Showing draft selection
-    document.getElementById("search-input").value = "";
     document.getElementById("draftsheet-container").classList.add("active");
+
+    // Resetting gallery filters
+    document.getElementById("search-input").value = "";
+    searchFilter = "";
+    colorFilter = "none";
+    colorTextElm.innerText = "NONE";
+    colorTextElm.classList = "none";
+
 
     // Focusing on search input
     document.getElementById("search-input").focus();
 
     // Playing sfx
     if (playsound) {
-        const draftSFX = new Audio("./audio/start-draft.mp3");
-        draftSFX.volume = 0.5;
-        draftSFX.play();
+        draftStartSFX.play();
     }
     
     // Showing slection text
@@ -167,38 +194,133 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
 
     // Populating gallery
     let galleryHTML = "";
+    let i = 0;
     floorplans.forEach(fp => {
         galleryHTML += `
-            <button class="floorplan-button clickable gallery-floorplan" data-name="${fp.name}"><img class="gallery-item" src="./assets/floorplans/${fp.name}.png"></button>
+            <button class="floorplan-button clickable gallery-floorplan" data-index="${i}"><img class="gallery-item" src="./assets/floorplans/${fp.name}.png"></button>
         `
+        i++;
     });
     document.getElementById("gallery-track").innerHTML = galleryHTML;
 
     // Adding click and hover listeners to floorplans
     document.querySelectorAll(".gallery-floorplan").forEach(fp => {
-        fp.addEventListener("click", () => {
-            choseFloorplan(fp.getAttribute("data-name"));
+        fp.addEventListener("click", (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+            choseFloorplan(floorplans[parseInt(fp.getAttribute("data-index"))].name);
         });
 
-        if (playsound) {
-            fp.addEventListener("mouseenter", () => {
+        fp.addEventListener("mouseenter", () => {
+            if (playsound && !isMouseDown) {
                 hoverSFX.play();
-            });
-        }
+            }
+        });
     });
+
+    // Scrolling to last picked floorplan on open
+    if (lastSelectedIndex !== null) {
+        gallery.scrollTo({
+            left: (lastSelectedIndex * itemWidth) - (gallery.offsetWidth / 2) + (itemWidth / 2),
+            behavior: "auto"
+        });
+    } else {
+        // If no previous guess, start at the beginning
+        gallery.scrollLeft = 0;
+    }
 
     // Animating measure line and gallery
     setTimeout(function() {
         document.getElementById("measure-line").classList.add("active");
         gallery.classList.add("active");
-        document.getElementById("search-container").style.left =  "50%";
+        document.getElementById("filter-container").style.left =  "50%";
     }, 1200);
 
-    // Showing search bar
+    // Showing search and filter bar
     setTimeout(function() {
-        document.getElementById("search-container").classList.add("active");
+        document.getElementById("filter-container").classList.add("active");
     }, 1500);
 });
+
+
+gallery.addEventListener('dragstart', (e) => {
+    e.preventDefault();
+});
+
+
+// Starting gallery dragging on mouse held
+gallery.addEventListener('mousedown', (e) => {
+    isMouseDown = true;
+    isDragging = false;
+    startX = e.pageX - gallery.offsetLeft;
+    scrollLeft = gallery.scrollLeft;
+    cancelAnimationFrame(momentumID);
+});
+
+
+// Stopping drag on mouse let go
+gallery.addEventListener('mouseup', () => {
+    isMouseDown = false;
+    gallery.classList.remove('active-drag');
+    
+    // Starting momentum scroll
+    if (isDragging) {
+        beginMomentum();
+    }
+    
+    setTimeout(() => { 
+        isDragging = false; 
+    }, 10); 
+});
+
+
+// Stopping drag on mouse leaving track area
+gallery.addEventListener('mouseleave', () => {
+    isMouseDown = false;
+    isDragging = false;
+    gallery.classList.remove('active-drag');
+});
+
+
+// Checking mouse movement and disabling clicks/scrolling
+gallery.addEventListener('mousemove', (e) => {
+    if (!isMouseDown) return;
+    e.preventDefault();
+    
+    // Minimum distance before dragging is counted
+    const walk = (e.pageX - gallery.offsetLeft - startX); 
+    if (!isDragging && Math.abs(walk) > 5) {
+        isDragging = true;
+        gallery.classList.add('active-drag'); // Disabling clicking
+    }
+
+    // Scroll if dragging started
+    if (isDragging) {
+        const prevScroll = gallery.scrollLeft;
+        gallery.scrollLeft = scrollLeft - walk;
+        velX = gallery.scrollLeft - prevScroll;
+    }
+});
+
+
+// Gallery scrolling momentum loop
+function beginMomentum() {
+    cancelAnimationFrame(momentumID);
+    function loop() {
+        if (Math.abs(velX) > 2) {
+            gallery.scrollLeft += velX;
+            velX *= 0.95; 
+            momentumID = requestAnimationFrame(loop);
+        } else {
+            // Stop velocity when it gets low
+            velX = 0;
+        }
+    }
+    loop();
+}
 
 
 // Gallery scrolling mouse wheel
@@ -228,7 +350,8 @@ document.addEventListener("keydown", (event) => {
     if (event.repeat || !gallery.classList.contains("active")) return;
     
     if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
-        const itemWidth = 305;
+        event.preventDefault();
+
         scrollDirection = (event.key === "ArrowRight") ? 1 : -1;
 
         // Scroll 1 item if key just pressed
@@ -247,7 +370,7 @@ document.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && shownsItems === 1) {
         document.querySelectorAll(".gallery-floorplan").forEach(fp => {
             if (!fp.classList.contains("hidden")) {
-                choseFloorplan(fp.getAttribute("data-name"));
+                choseFloorplan(floorplans[parseInt(fp.getAttribute("data-index"))].name);
             }
         });
     }
@@ -278,10 +401,35 @@ document.addEventListener("keydown", (event) => {
 
 // Gallery search filter
 document.getElementById("search-input").addEventListener("input", function() {
+    const name = this.value ? this.value.toLowerCase().replaceAll(' ','') : "";
+    searchFilter = name;
+    filterGallery(name, colorFilter);
+});
+
+
+// Gallery color filter
+document.querySelectorAll(".color-filter-button").forEach((button) => {
+    button.addEventListener("click", () => {
+        let color = button.getAttribute("data-color");
+        if (color == colorFilter) {
+            color = "none";
+        }
+
+        colorFilter = color;
+        colorTextElm.classList = color.toLocaleLowerCase().replaceAll(' ','-');
+        colorTextElm.innerText = color.toUpperCase();
+
+        filterGallery(searchFilter, color);
+    });
+});
+
+
+// Filtering gallery items
+function filterGallery(name, color) {
     shownsItems = 0;
-    let filter = this.value ? this.value.toLowerCase().replaceAll(' ','') : "";
     document.querySelectorAll(".gallery-floorplan").forEach(fp => {
-        if (fp.getAttribute("data-name").indexOf(filter) !== -1) {
+        const floorplan = floorplans[parseInt(fp.getAttribute("data-index"))];
+        if (floorplan.name.indexOf(name) !== -1 && (color == "none" || floorplan.types.includes(color))) {
             shownsItems++;
             fp.classList.remove("hidden");
         }
@@ -289,12 +437,12 @@ document.getElementById("search-input").addEventListener("input", function() {
             fp.classList.add("hidden");
         }
     });
-});
+}
 
 
 // Letter page advance on click
 document.getElementById("intro-letter").addEventListener("click", () => {
-    changeLetterPage(letterPage + 1);
+    changeLetterPage((letterPage + 1) % 4);
 });
 
 
@@ -312,15 +460,20 @@ document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
         toggleUIContainer(false, "letter");
         toggleUIContainer(false, "kofi");
+        if (document.getElementById("draftsheet-container").classList.contains("active")) {
+            hideDraftSelect();
+        }
     }
 });
 
 
+// Previous page button click
 prevButton.addEventListener("click", (event) => {
     changeLetterPage(letterPage - 1);
 });
 
 
+// Next page button click
 nextButton.addEventListener("click", (event) => {
     changeLetterPage(letterPage + 1);
 });
@@ -369,26 +522,16 @@ function choseFloorplan(name) {
     localData.guesses.push(name);
     saveData();
 
-    // Hiding draft selection
-    document.getElementById("draftsheet-container").classList.remove("active");
+    // Saving last selected index
+    lastSelectedIndex = floorplans.findIndex(fp => fp.name === name);
 
     // Playing sfx
     if (playsound) {
-        const draftSFX = new Audio("./audio/end-draft.mp3");
-        draftSFX.volume = 1.0;
-        draftSFX.play();
+        draftEndSFX.play();
     }
 
-    // Resetting new floorplan button and animations when offscreen
-    setTimeout(function() {
-        document.getElementById("draft-select-text").classList.remove("active");
-        document.getElementById("measure-line").classList.remove("active");
-        gallery.classList.remove("active");
-        document.getElementById("search-container").style.left = "150%";
-        document.getElementById("search-container").classList.remove("active");
-        newFloorplansButton.classList.add("clickable");
-        newFloorplansButton.classList.remove("disabled");
-    }, 1000);
+    // Hiding draft selection
+    hideDraftSelect();
 
     // Checking if guessed correctly
     if (correctFloorplan.name === name) {
@@ -417,30 +560,40 @@ function drawFloorplan(name) {
 
     // Initializing answer checking
     const floorplan = floorplans.find(fp => fp.name === name);
-    let numCorrect = 0;
-    let numClose = 0;
-    let answers = {"cost": "wrong", "type": "wrong", "rarity": "wrong", "entrances": "wrong"};
+    let numGreen = 0;
+    let answers = {"cost": "wrong", "type": "wrong", "missing": "wrong", "extra": "wrong", "rarity": "wrong", "entrances": "wrong"};
 
     // Cost check
     if (Math.abs(correctFloorplan.cost - floorplan.cost) <= 1){
         if (correctFloorplan.cost === floorplan.cost) {
             answers.cost = "correct";
-            numCorrect++;
+            numGreen++;
         } else {
             answers.cost = "close";
-            numClose++;
         }
     }
 
     // Type comparison
-    const sharedTypes = correctFloorplan.types.filter(value => floorplan.types.includes(value));
-    if (sharedTypes.length > 0){
-        if (sharedTypes.length === correctFloorplan.types.length && sharedTypes.length === floorplan.types.length) {
-            answers.type = "correct";
-            numCorrect++;
+    const numTypesShared = correctFloorplan.types.filter(value => floorplan.types.includes(value)).length;
+    const numTypesExtra = floorplan.types.length - numTypesShared;
+    const numTypesCorrect = correctFloorplan.types.length;
+    if (numTypesShared != 0) {
+        answers.type = "close";
+        answers.missing = "close";
+        answers.extra = "close";
+
+        if (numTypesShared == numTypesCorrect) {
+            answers.missing = "correct";
+            numGreen++;
+            if (numTypesExtra == 0) {
+                answers.type = "correct";
+                answers.extra = "correct";
+            }
         } else {
-            answers.type = "close";
-            numClose++;
+            if (numTypesExtra == 0) {
+                answers.extra = "correct";
+                numGreen++;
+            }
         }
     }
 
@@ -448,11 +601,10 @@ function drawFloorplan(name) {
     if (Math.abs(correctFloorplan.rarity - floorplan.rarity) <= 1){
         if (correctFloorplan.rarity === floorplan.rarity) {
             answers.rarity = "correct";
-            numCorrect++;
+            numGreen++;
         } else {
             if (correctFloorplan.rarity !== 0 && floorplan.rarity !== 0 && correctFloorplan.rarity !== 5 && floorplan.rarity !== 5) {
                 answers.rarity = "close";
-                numClose++;
             }
         }
     }
@@ -461,15 +613,14 @@ function drawFloorplan(name) {
     if (Math.abs(correctFloorplan.entrances - floorplan.entrances) <= 1){
         if (correctFloorplan.entrances === floorplan.entrances) {
             answers.entrances = "correct";
-            numCorrect++;
+            numGreen++;
         } else {
             answers.entrances = "close";
-            numClose++;
         }
     }
 
     // Increasing hint count if guess is almost correct
-    if (hints != name.length && (numCorrect == 4 || (numCorrect == 3 && numClose == 1))) {
+    if (hints != name.length && (hints > 8 || numGreen >= 3)) {
         hints++;
         let visibleCharCount = hints;
         let words = correctFloorplan.displayName.split(' ');
@@ -500,7 +651,7 @@ function drawFloorplan(name) {
     // Creating gems HTML
     let gemsHTML = "";
     if (floorplan.cost === 0) {
-        gemsHTML = `<span class="info-text n/a">None</span>`;
+        gemsHTML = `<span class="info-text none">None</span>`;
     } else {
         for(let i = 0; i < floorplan.cost; i++) {
             gemsHTML += `<img class="gem" src="./assets/gem.png">`
@@ -525,7 +676,11 @@ function drawFloorplan(name) {
             <img class="floorplan" src="./assets/floorplans/${name}.png">
             <div class="info-container">
                 <div><span class="${answers.cost}">COST</span><span class="colon">:</span>${gemsHTML}</div>
-                <div><span class="${answers.type}">TYPE</span><span class="colon">:</span>${typesHTML}</div>
+                <div>
+                    <span class="${answers.type}">TYPE </span>
+                    <span class="wrong" style="font-size: clamp(10px, 18px, 1.7vw)">(<span class="${answers.missing}">MISSING</span> - <span class="${answers.extra}">EXTRA</span>)</span><span class="colon">:</span>   
+                </div>
+                <div>${typesHTML}</div>
                 <div>
                     <span class="${answers.rarity}">RARITY</span><span class="colon">:</span>
                     ${floorplan.rarity >= 1 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="./assets/commonplace-dot.png">` : ""}
@@ -569,6 +724,21 @@ function drawFloorplan(name) {
     }, 500);
 }
 
+function hideDraftSelect() {
+    document.getElementById("draftsheet-container").classList.remove("active");
+
+    // Resetting new floorplan button and animations when offscreen
+    setTimeout(function() {
+        document.getElementById("draft-select-text").classList.remove("active");
+        document.getElementById("measure-line").classList.remove("active");
+        gallery.classList.remove("active");
+        document.getElementById("filter-container").style.left = "150%";
+        document.getElementById("filter-container").classList.remove("active");
+        newFloorplansButton.classList.add("clickable");
+        newFloorplansButton.classList.remove("disabled");
+    }, 1000);
+}
+
 // Toggling intro letter or kofi note state
 function toggleUIContainer(open, container) {
     // Exiting if ui state is already matched
@@ -577,10 +747,7 @@ function toggleUIContainer(open, container) {
 
     // Playing sfx
     if (playsound) {
-        const openSFXlist = ["./audio/open0.mp3", "./audio/open1.mp3", "./audio/open2.mp3", "./audio/open3.mp3", "./audio/open4.mp3", "./audio/open5.mp3"];
-        const openSFX = new Audio(openSFXlist[Math.floor(Math.random() * openSFXlist.length)]);
-        openSFX.volume = 0.5;
-        openSFX.play();
+        openSFXlist[Math.floor(Math.random() * openSFXlist.length)].play();
     }
 
     if (open === true) {
@@ -604,10 +771,7 @@ function changeLetterPage(page) {
 
     // Playing sfx
     if (playsound) {
-        const pageSFXlist = ["./audio/page0.mp3", "./audio/page1.mp3", "./audio/page2.mp3", "./audio/page3.mp3"];
-        const pageSFX = new Audio(pageSFXlist[Math.floor(Math.random() * pageSFXlist.length)]);
-        pageSFX.volume = 0.5;
-        pageSFX.play();
+        pageSFXlist[Math.floor(Math.random() * pageSFXlist.length)].play();
     }
 
     // Changing page
@@ -650,9 +814,7 @@ function initEnding() {
     document.getElementById("streak-num").innerText = localData.streak;
 
     // Playing ending music
-    const endingMusic = new Audio("./audio/call-it-a-day.mp3");
     if (playsound) {
-        endingMusic.volume = 0.5;
         endingMusic.play();
     }
 
@@ -683,8 +845,6 @@ function initEnding() {
 
         // Fading out music
         if (playsound) {
-            const exitSFX = new Audio("./audio/exit-click.mp3");
-            exitSFX.volume = 0.5;
             exitSFX.play();
 
             const fadeOutInterval = setInterval(() => {

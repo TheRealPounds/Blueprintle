@@ -226,7 +226,7 @@ body {
 
 .gallery-viewport {
     position: fixed;
-    top: 22vh;
+    top: 11vw;
     left: 0;
     width: 100vw;
     height: 35vh;
@@ -244,8 +244,22 @@ body {
     transform: translateX(0);
 }
 
+.gallery-viewport.active-drag {
+    cursor: url("../assets/cursor-grab.png") 32 24, grabbing;
+    scroll-snap-type: none !important;
+    scroll-behavior: auto !important;
+}
+
+.gallery-viewport.active-drag .gallery-floorplan {
+    pointer-events: none;
+}
+
 .gallery-viewport::-webkit-scrollbar {
     display: none;
+}
+
+.gallery-viewport:focus {
+    outline: none;
 }
 
 .gallery-track {
@@ -264,19 +278,28 @@ body {
 .gallery-item {
     width: 14vw;
     height: auto;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
-.search-container {
+.filter-container {
     position: fixed;
     bottom: -25vh;
     left: 150%;
     transform: translateX(-50%);
     transition: bottom 0.7s ease-out;
+    display: flex;
+    align-items: center;
     z-index: 1;
 }
 
-.search-container.active {
+.filter-container.active {
     bottom: 15vh;
+}
+
+.search-container {
+    display: inline-block;
+    position: relative; 
 }
 
 .search-background {
@@ -312,6 +335,43 @@ body {
 
 .search-input:hover {
     cursor: url("../assets/cursor-text.png") 31 34, text;
+}
+
+.color-filters-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 1vw;
+    gap: 0.5vw;
+    position: relative;
+    padding-top: 2.5vw;
+}
+
+.color-filter-title {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: "Archivo Black", sans-serif;
+    font-size: 1.2vw;
+    color: white;
+}
+
+.color-filter-buttons-container {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5vw;
+}
+
+.color-filter-button {
+    background: none;
+    border: none;
+}
+
+.color-filter-icon {
+    width: 2vw;
+    height: auto;
 }
 
 .floorplans-container {
