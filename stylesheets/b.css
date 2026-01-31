@@ -1,0 +1,525 @@
+body {
+    background-image: url("../assets/b-background.png");
+    background-size: 100% auto;
+    background-repeat: repeat-y;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+    overflow-x: hidden;
+    cursor: url("../assets/cursor-default.png") 32 24, default;
+    scroll-behavior: auto !important;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.clickable:hover {
+    cursor: url("../assets/cursor-pointer.png") 32 21, pointer;
+}
+
+.disabled:hover {
+    cursor: url("../assets/cursor-faint.png") 32 24, default ;
+}
+
+.vertical-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.main-container {
+    padding-bottom: 5vh;
+}
+
+.logo {
+    width: 800px;
+    height: auto;
+    margin-top: 10px;
+    user-select: none;
+}
+
+.ui-container {
+    position: fixed;
+    z-index: 20;
+}
+
+.steps-container {
+    position: fixed;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    top: 2vh;
+    left: 1vw;
+}
+
+.steps-icon {
+    width: 8vh;
+    height: auto;
+    vertical-align: middle;
+}
+
+.steps-counter {
+    margin-left: 2vh;
+    color: white;
+    font-size: 12vh;
+    line-height: 0.1;
+    rotate: 90deg;
+}
+
+.boxes-container {
+    position: relative;
+    width: 790px; 
+    margin: 0 auto;
+}
+
+.mora-jai-container {
+    position: absolute; 
+    width: 250px; 
+    aspect-ratio: 1137 / 936;
+    transition: top 1s ease-in-out, left 1s ease-in-out;
+}
+
+.box {
+    width: 100%;
+    height: 100%;
+    display: block;
+    user-select: none;
+}
+
+.mirror {
+    transform: scale(-1, 1);
+}
+
+.tile-button, .corner-button {
+    position: absolute;
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.tile, .corner {
+    width: 100%; 
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+}
+
+.top-left {
+    width: 12%;
+    left: 29%;
+    top: 12.5%;
+}
+
+.top-middle {
+    width: 11.5%;
+    left: 44%;
+    top: 12.5%;
+}
+
+.top-right {
+    width: 12%;
+    left: 58.5%;
+    top: 12.5%;
+}
+
+.middle-left {
+    width: 13%;
+    left: 27%;
+    top: 27.5%;
+}
+
+.middle-middle {
+    width: 13%;
+    left: 43.5%;
+    top: 27%;
+}
+
+.middle-right {
+    width: 13%;
+    left: 59.5%;
+    top: 27.5%;
+}
+
+.bottom-left {
+    width: 15%;
+    left: 24.5%;
+    top: 44.5%;
+}
+
+.bottom-middle {
+    width: 15%;
+    left: 42.5%;
+    top: 44%;
+}
+
+.bottom-right {
+    width: 15%;
+    left: 60.5%;
+    top: 44.5%;
+}
+
+.top-left-corner {
+    width: 10%;
+    left: 20.5%;
+    top: 1%;
+}
+
+.top-right-corner {
+    width: 10%;
+    left: 69%;
+    top: 1%;
+}
+
+.bottom-left-corner {
+    width: 17%;
+    left: 6%;
+    top: 60%;
+}
+
+.bottom-right-corner {
+    width: 17%;
+    left: 77%;
+    top: 60%;
+}
+
+.color-red {
+    filter: hue-rotate(140deg) saturate(120%) brightness(80%);
+}
+
+.color-orange {
+    filter: hue-rotate(170deg) saturate(80%) brightness(135%);
+}
+
+.color-yellow {
+    filter: hue-rotate(-155deg) saturate(90%) brightness(160%);
+}
+
+.color-green {
+    filter: hue-rotate(-100deg) saturate(80%) brightness(130%);
+}
+
+.color-blue {
+    filter: none;
+}
+
+.color-purple {
+    filter: hue-rotate(85deg) saturate(90%) brightness(90%);
+}
+
+.color-pink {
+    filter: hue-rotate(95deg) saturate(55%) brightness(150%);
+}
+
+.color-white {
+    filter: grayscale(100%) brightness(180%);
+}
+
+.color-black {
+    filter: grayscale(100%) brightness(55%);
+}
+
+.color-grey {
+    filter: grayscale(100%) brightness(115%);
+}
+
+.safe-container {
+    position: relative;
+    width: 700px;
+    height: 700px;
+}
+
+.boxes-open {
+    position: absolute;
+    width: 100%;
+}
+
+.riddle-button {
+    position: absolute;
+    background: none;
+    border: none;
+    padding: 0;
+    top: 80%;
+    left: 40%;
+    rotate: -15deg;
+    width: 25%;
+}
+
+.letter-button {
+    position: absolute;
+    background: none;
+    border: none;
+    padding: 0;
+    top: 56.5%;
+    left: 33%;
+    width: 30%;
+}
+
+.riddle-note {
+    width: 100%;
+    filter: drop-shadow(-8px 8px 8px rgba(0, 0, 0, 0.5));
+}
+
+.letter {
+    width: 100%;
+    filter: drop-shadow(-8px 8px 8px rgba(0, 0, 0, 0.5));
+}
+
+.safe-closed {
+    position: absolute;
+    width: 70%;
+    left: 15%;
+    top: 25%;
+    filter: drop-shadow(-8px 8px 8px rgba(0, 0, 0, 0.5));
+}
+
+.safe-open {
+    position: absolute;
+    width: 130%;
+    left: 15%;
+    bottom: 25%;
+    filter: drop-shadow(-8px 8px 8px rgba(0, 0, 0, 0.5));
+}
+
+.safe-button {
+    position: absolute;
+    background: none;
+    border: none;
+    height: 1.8%;
+}
+
+.button-1 {
+    top: 45.2%;
+    left: 46%;
+}
+
+.button-2 {
+    top: 45.2%;
+    left: 49.1%;
+}
+
+.button-3 {
+    top: 45.2%;
+    left: 52.2%;
+}
+
+.button-4 {
+    top: 47.6%;
+    left: 46%;
+}
+
+.button-5 {
+    top: 47.6%;
+    left: 49.1%;
+}
+
+.button-6 {
+    top: 47.6%;
+    left: 52.2%;
+}
+
+.button-7 {
+    top: 50.1%;
+    left: 46%;
+}
+
+.button-8 {
+    top: 50.1%;
+    left: 49.1%;
+}
+
+.button-9 {
+    top: 50.1%;
+    left: 52.2%;
+}
+
+.button-0 {
+    top: 52.8%;
+    left: 49.1%;
+}
+
+.button-clear {
+    top: 52.8%;
+    left: 45.6%;
+    width: 3%;
+}
+
+.button-enter {
+    top: 52.8%;
+    left: 51.3%;
+    width: 3%;
+}
+
+.final-letter-container {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+}
+
+.final-letter {
+    height: 100%;
+    width: auto;
+}
+
+.close-button {
+    position: fixed;
+    top: 2vh;
+    right: 10vw;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    z-index: 31;
+}
+
+.close-icon {
+    width: 5vh;
+    height: auto;
+}
+
+.page-buttons-container {
+    position: fixed;
+    bottom: 2vh;
+    left: 2vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.letter-page-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    z-index: 31;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: 0;
+    opacity: 1;
+    transition: opacity 1s;
+}
+
+.letter-page-button.disabled {
+    opacity: 0;
+    cursor: url("../assets/cursor-default.png") 32 24, default;
+}
+
+.letter-page-icon {
+    height: 8vh;
+    width: auto;
+}
+
+.letter-page-text {
+    font-family: 'Questa';
+    font-size: 1.5vw;
+    color: white;
+    padding: 0 1vh;
+}
+
+.riddle-container {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+}
+
+.riddle {
+    height: 50%;
+    width: auto;
+}
+
+.zoomable {
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+
+.magnifier-container {
+    position: fixed;
+    height: 80vh;
+    width: 36.75vh;
+    pointer-events: none; 
+    z-index: 100;
+    user-select: none;
+}
+
+.hitbox {
+    position: absolute;
+    pointer-events: auto;
+    cursor: url("../assets/cursor-grab.png") 32 24, grab;
+    z-index: 10;
+}
+
+.circle-hitbox {
+    width: 35vh;
+    height: 35vh;
+    border-radius: 50%;
+    left: 2.5%;
+    top: 2.5%;
+}
+
+.handle-hitbox {
+    width: 21%;
+    height: 55.5%;
+    left: 31%;
+    top: 45%;
+    transform: rotate(14deg);
+    transform-origin: top center;
+}
+
+.glass-image {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+.lens-effect {
+    position: absolute;
+    left: 5%;
+    top: 5%;
+    width: 32vh;
+    height: 32vh;
+    border-radius: 50%;
+    z-index: 1;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+.lens-effect::after {
+    content: '';
+    display: block;
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(93, 163, 195, 0.25); 
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(0.5px);
+}
+
+body.is-dragging-glass {
+    cursor: url("../assets/cursor-grabbing.png") 32 24, grabbing !important;
+}
+
+body.is-dragging-glass .clickable, 
+body.is-dragging-glass button,
+body.is-dragging-glass a {
+    pointer-events: none !important;
+}
+
+body.is-dragging-glass .hitbox {
+    cursor: url("../assets/cursor-grabbing.png") 32 24, grabbing !important;
+}

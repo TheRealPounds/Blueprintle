@@ -1,9 +1,19 @@
+/*
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                            !!WARNING!!
+                        If you came to look in the code for hints for the puzzle, this is NOT a part of the intended solving experience!
+            None of the files/assets used by the webstie were meant for that use and could spoil certain parts as their implementation wasn't obfuscated!
+                                    If you came here for another reason, please don't judge my terrible code too harshly
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*/
 console.log("Main JS loaded");
 
 import { floorplans } from "../scripts/floorplans.js";
 
-const debug = new URLSearchParams(document.location.search).get("debug") === "true" ? true : false;
-const debugDay = new URLSearchParams(document.location.search).get("day");
+const urlParams = new URLSearchParams(document.location.search);
+if (urlParams.get("color") === "black") window.location.href = "./blackprintle.html";
+const debug = urlParams.get("debug") === "true" ? true : false;
+const debugDay = urlParams.get("day");
 
 const gallery = document.getElementById("gallery-viewport");
 const newFloorplansButton = document.getElementById("new-floorplans");
@@ -11,7 +21,7 @@ const prevButton = document.getElementById("prev-page-button");
 const nextButton = document.getElementById("next-page-button");
 const colorTextElm = document.getElementById("color-filter-text");
 
-const launchDate = new Date('2026-01-15T00:00:00').getTime();
+const launchDate = new Date('2026-01-31T00:00:00').getTime();
 const today = debugDay ? new Date(debugDay) : new Date();
 today.setHours(0, 0, 0, 0);
 const daysSinceLaunch = Math.floor((today.getTime() - launchDate) / 86400000);
@@ -31,6 +41,9 @@ const endingMusic = new Audio("./audio/call-it-a-day.mp3");
 endingMusic.volume = 0.5;
 const exitSFX = new Audio("./audio/exit-click.mp3");
 exitSFX.volume = 0.5;
+const puzzleMusic = new Audio("./audio/stories-of-all-manor.mp3");
+puzzleMusic.loop = true;
+puzzleMusic.volume = 0.2;
 
 const itemWidth = window.innerWidth * 0.16;
 let isScrolling = false;
@@ -55,6 +68,8 @@ let hints = 0;
 let hintText = "";
 let searchFilter = "";
 let colorFilter = "none";
+let puzzleMode = 0;
+const sequence = ["sacredroom", "cloisteroforinda", "office", "locksmith", "observatory", "rumpusroom", "entrancehall", "questbedroom", "utilitycloset", "archives", "lostfound", "schoolhouse", "bunkroom", "lavatory", "aquarium", "corriyard", "kitchen"];
 
 
 // Hashing function from https://github.com/cprosche/mulberry32
@@ -88,7 +103,8 @@ if (!localData || debug) {
         "totalGuesses": 0,
         "guesses": [],
         "lastDayPlayed": 0,
-        "lastDayWon": 0
+        "lastDayWon": 0,
+        "b" : [false, false, false, false, false, false, false, false, false, false, false]
     }
     saveData();
     if (!debug) toggleUIContainer(true, "letter");
@@ -126,6 +142,14 @@ localData.guesses.forEach((guess) => {
 if (!localData.playsound) {
     playsound = false;
     document.getElementById("mute-icon").src = `./assets/muted-icon.png`;
+}
+
+
+// Showing crowns in puzzle was completed
+if (localData.b[10]) {
+    document.querySelectorAll(".crown").forEach((elm) => {
+        elm.classList.remove("hidden");
+    });
 }
 
 
@@ -228,7 +252,6 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
             behavior: "auto"
         });
     } else {
-        // If no previous guess, start at the beginning
         gallery.scrollLeft = 0;
     }
 
@@ -387,18 +410,6 @@ document.addEventListener("keyup", (event) => {
 });
 
 
-// Letter keyboard arrows page change
-document.addEventListener("keydown", (event) => {
-    if (document.getElementById("letter-container").classList.contains("hidden")) return;
-
-    if (event.key === "ArrowRight") {
-        changeLetterPage(letterPage + 1);
-    } else if (event.key === "ArrowLeft") {
-        changeLetterPage(letterPage - 1);
-    }  
-});
-
-
 // Gallery search filter
 document.getElementById("search-input").addEventListener("input", function() {
     const name = this.value ? this.value.toLowerCase().replaceAll(' ','') : "";
@@ -429,7 +440,7 @@ function filterGallery(name, color) {
     shownsItems = 0;
     document.querySelectorAll(".gallery-floorplan").forEach(fp => {
         const floorplan = floorplans[parseInt(fp.getAttribute("data-index"))];
-        if (floorplan.name.indexOf(name) !== -1 && (color == "none" || floorplan.types.includes(color))) {
+        if (floorplan.name.indexOf(name) !== -1 && (color === "none" || floorplan.types.includes(color))) {
             shownsItems++;
             fp.classList.remove("hidden");
         }
@@ -437,7 +448,30 @@ function filterGallery(name, color) {
             fp.classList.add("hidden");
         }
     });
+
+    if (name === "sacredroom" && !puzzleMode) {
+        document.getElementById("gallery-track").innerHTML = `<button id="sacred-room" class="floorplan-button clickable"><img class="gallery-item" src="./assets/floorplans/sacredroom.png"></button>`;
+        document.getElementById("sacred-room").addEventListener("click", () => {
+            puzzleMode = 1;
+            choseFloorplan("sacredroom");
+        });
+    }
+
+    // Bringing gallery to begining when filtering
+    gallery.scrollLeft = 0;
 }
+
+
+// Letter keyboard arrows page change
+document.addEventListener("keydown", (event) => {
+    if (document.getElementById("letter-container").classList.contains("hidden")) return;
+
+    if (event.key === "ArrowRight") {
+        changeLetterPage(letterPage + 1);
+    } else if (event.key === "ArrowLeft") {
+        changeLetterPage(letterPage - 1);
+    }  
+});
 
 
 // Letter page advance on click
@@ -455,7 +489,7 @@ document.querySelectorAll(".close-button").forEach((button) => {
 });
 
 
-// Escape key to close letter
+// Escape key to close ui
 document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
         toggleUIContainer(false, "letter");
@@ -513,14 +547,32 @@ document.getElementById("mute-button").addEventListener("click", (event) => {
 
 
 // When a floorplan is chosen
+let cannotDraftTimer = null;
+const cannotDraftClasslist = document.getElementById("cannot-draft").classList;
 function choseFloorplan(name) {
     // Preventing choosing when not active or if already guessed correctly
     if (document.getElementById("draftsheet-container").classList.contains("active") === false || guessedCorrectly) return;
 
+    // Preventing choosing if already chose this floorplan today
+    if (localData.guesses.includes(name) && !puzzleMode) {
+        if (cannotDraftTimer) {
+            clearTimeout(cannotDraftTimer);
+        }
+        cannotDraftClasslist.remove("hidden");
+        cannotDraftTimer = setTimeout(() => {
+            cannotDraftClasslist.add("hidden");
+        }, 2000);
+        return;
+    }
+
     // Saving guess data
-    localData.totalGuesses++;
-    localData.guesses.push(name);
-    saveData();
+    if (!puzzleMode) {
+        localData.totalGuesses++;
+        localData.guesses.push(name);
+        saveData();
+    } else {
+        if (playsound) puzzleMusic.play();
+    }
 
     // Saving last selected index
     lastSelectedIndex = floorplans.findIndex(fp => fp.name === name);
@@ -534,7 +586,7 @@ function choseFloorplan(name) {
     hideDraftSelect();
 
     // Checking if guessed correctly
-    if (correctFloorplan.name === name) {
+    if (correctFloorplan.name === name && !puzzleMode) {
         guessedCorrectly = true;
         newFloorplansButton.classList.add("hidden");
         setTimeout(function() {
@@ -554,98 +606,119 @@ function choseFloorplan(name) {
 
 // Adding floorplan info to screen
 function drawFloorplan(name) {
-    // Incrementing steps
-    steps++;
-    document.getElementById("steps-counter").innerText = steps;
-
-    // Initializing answer checking
-    const floorplan = floorplans.find(fp => fp.name === name);
-    let numGreen = 0;
+    let floorplan;
     let answers = {"cost": "wrong", "type": "wrong", "missing": "wrong", "extra": "wrong", "rarity": "wrong", "entrances": "wrong"};
+    if (!puzzleMode) {
+        // Incrementing steps
+        steps++;
+        document.getElementById("steps-counter").innerText = steps;
 
-    // Cost check
-    if (Math.abs(correctFloorplan.cost - floorplan.cost) <= 1){
-        if (correctFloorplan.cost === floorplan.cost) {
-            answers.cost = "correct";
-            numGreen++;
-        } else {
-            answers.cost = "close";
-        }
-    }
+        // Initializing answer checking
+        floorplan = floorplans.find(fp => fp.name === name);
+        let numGreen = 0;
 
-    // Type comparison
-    const numTypesShared = correctFloorplan.types.filter(value => floorplan.types.includes(value)).length;
-    const numTypesExtra = floorplan.types.length - numTypesShared;
-    const numTypesCorrect = correctFloorplan.types.length;
-    if (numTypesShared != 0) {
-        answers.type = "close";
-        answers.missing = "close";
-        answers.extra = "close";
-
-        if (numTypesShared == numTypesCorrect) {
-            answers.missing = "correct";
-            numGreen++;
-            if (numTypesExtra == 0) {
-                answers.type = "correct";
-                answers.extra = "correct";
-            }
-        } else {
-            if (numTypesExtra == 0) {
-                answers.extra = "correct";
+        // Cost check
+        if (Math.abs(correctFloorplan.cost - floorplan.cost) <= 1){
+            if (correctFloorplan.cost === floorplan.cost) {
+                answers.cost = "correct";
                 numGreen++;
+            } else {
+                answers.cost = "close";
             }
         }
-    }
 
-    // Rarity check (with special case for n/a or rumored)
-    if (Math.abs(correctFloorplan.rarity - floorplan.rarity) <= 1){
-        if (correctFloorplan.rarity === floorplan.rarity) {
-            answers.rarity = "correct";
-            numGreen++;
-        } else {
-            if (correctFloorplan.rarity !== 0 && floorplan.rarity !== 0 && correctFloorplan.rarity !== 5 && floorplan.rarity !== 5) {
-                answers.rarity = "close";
-            }
-        }
-    }
+        // Type comparison
+        const numTypesShared = correctFloorplan.types.filter(value => floorplan.types.includes(value)).length;
+        const numTypesExtra = floorplan.types.length - numTypesShared;
+        const numTypesCorrect = correctFloorplan.types.length;
+        if (numTypesShared != 0) {
+            answers.type = "close";
+            answers.missing = "close";
+            answers.extra = "close";
 
-    // Entrances check
-    if (Math.abs(correctFloorplan.entrances - floorplan.entrances) <= 1){
-        if (correctFloorplan.entrances === floorplan.entrances) {
-            answers.entrances = "correct";
-            numGreen++;
-        } else {
-            answers.entrances = "close";
-        }
-    }
-
-    // Increasing hint count if guess is almost correct
-    if (hints != name.length && (hints > 8 || numGreen >= 3)) {
-        hints++;
-        let visibleCharCount = hints;
-        let words = correctFloorplan.displayName.split(' ');
-
-        // Replacing to underscore after char count is 0
-        words = words.map(word => {
-            return word.split('').map(char => {
-                // Check if the character is a letter or number
-                if (/[a-zA-Z0-9]/.test(char)) {
-                    if (visibleCharCount > 0) {
-                        visibleCharCount--;
-                        return char;
-                    } else {
-                        return " _ ";
-                    }
+            if (numTypesShared == numTypesCorrect) {
+                answers.missing = "correct";
+                numGreen++;
+                if (numTypesExtra == 0) {
+                    answers.type = "correct";
+                    answers.extra = "correct";
                 }
-                return char;
-            }).join('');
-        });
+            } else {
+                if (numTypesExtra == 0) {
+                    answers.extra = "correct";
+                    numGreen++;
+                }
+            }
+        }
 
-        hintText = `<span class="hint-text">HINT<span class="colon">:</span> `;
-        words.forEach((word) => {
-            hintText += `<span class="hint-word">${word}</span>`;
-        });
-        hintText += `</span>`;
+        // Rarity check (with special case for n/a or rumored)
+        if (Math.abs(correctFloorplan.rarity - floorplan.rarity) <= 1){
+            if (correctFloorplan.rarity === floorplan.rarity) {
+                answers.rarity = "correct";
+                numGreen++;
+            } else {
+                if (correctFloorplan.rarity !== 0 && floorplan.rarity !== 0 && correctFloorplan.rarity !== 5 && floorplan.rarity !== 5) {
+                    answers.rarity = "close";
+                }
+            }
+        }
+
+        // Entrances check
+        if (Math.abs(correctFloorplan.entrances - floorplan.entrances) <= 1){
+            if (correctFloorplan.entrances === floorplan.entrances) {
+                answers.entrances = "correct";
+                numGreen++;
+            } else {
+                answers.entrances = "close";
+            }
+        }
+
+        // Increasing hint count if guess is almost correct
+        if (hints != name.length && (hints > 8 || numGreen >= 3)) {
+            hints++;
+            let visibleCharCount = hints - 1;
+            let words = correctFloorplan.displayName.split(' ');
+
+            // Replacing to underscore after char count is 0
+            words = words.map(word => {
+                return word.split('').map(char => {
+                    // Check if the character is a letter or number
+                    if (/[a-zA-Z0-9]/.test(char)) {
+                        if (visibleCharCount > 0) {
+                            visibleCharCount--;
+                            return char;
+                        } else {
+                            return " _ ";
+                        }
+                    }
+                    return char;
+                }).join('');
+            });
+
+            hintText = `<span class="hint-text">HINT<span class="colon">:</span> `;
+            words.forEach((word) => {
+                hintText += `<span class="hint-word">${word}</span>`;
+            });
+            hintText += `</span>`;
+        }
+    } else {
+        if (name === sequence[puzzleMode-1]) {
+            answers = {"cost": "blueprint", "type": "blueprint", "missing": "blueprint", "extra": "blueprint", "rarity": "blueprint", "entrances": "blueprint"};
+            if (puzzleMode === sequence.length) {
+                floorplan = {"name": "", "displayName": "", "cost": 0, "types": [], "rarity": 0, "entrances": 0};
+                newFloorplansButton.classList.add("hidden");
+                const fadeOutInterval = setInterval(() => {
+                    puzzleMusic.volume = Math.max(0, puzzleMusic.volume - 0.01);
+                    if (puzzleMusic.volume === 0) clearInterval(fadeOutInterval);
+                }, 50);
+                setTimeout(() => {puzzleMusic.pause()}, 1000);
+            } else {
+                floorplan = floorplans.find(fp => fp.name === sequence[puzzleMode]);
+            }
+            puzzleMode++;
+        } else {
+            floorplan = floorplans.find(fp => fp.name === name);
+        }
     }
 
     // Creating gems HTML
@@ -689,10 +762,11 @@ function drawFloorplan(name) {
                     ${floorplan.rarity >= 4 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="./assets/rare-dot.png">` : ""}
                     <span class="info-text ${rarityNames[floorplan.rarity].toLowerCase()}">${rarityNames[floorplan.rarity]}</span>
                 </div>
-                <div><span class="${answers.entrances}">ENTRANCES</span><span class="colon">:</span><img class="type-icon" src="./assets/${floorplan.entrances}-icon.png"></div>
+                <div><span class="${answers.entrances}">ENTRANCES</span><span class="colon">:</span>${floorplan.entrances ? `<img class="type-icon" src="./assets/${floorplan.entrances}-icon.png">` : ""}</div>
             </div>
         </div>
-        ${guessedCorrectly ? "" : hintText + `<img class="down-arrow" src="./assets/down arrow.png">`}
+        ${guessedCorrectly || puzzleMode ? "" : hintText}
+        ${guessedCorrectly || puzzleMode > sequence.length ? "" : `<img class="down-arrow" src="./assets/down arrow.png">`}
     `;
 
     // Adding new entry to the DOM with animation
@@ -757,8 +831,23 @@ function toggleUIContainer(open, container) {
         }
 
         containerElm.classList.remove("hidden");
+
+        if (!isGlassVisible) {
+            currentX = -(36.75 * window.innerHeight / 100) - 50;
+            currentY = window.innerHeight + 50; 
+
+            targetX = window.innerWidth * 0.05;
+            targetY = window.innerHeight * 0.5;
+
+            isGlassVisible = true;
+            magContainer.classList.remove("hidden");
+            requestAnimationFrame(animateMagnifier);
+        }
     } else {
         containerElm.classList.add("hidden");
+
+        magContainer.classList.add("hidden");
+        isGlassVisible = false;
     }
 };
 
@@ -860,8 +949,129 @@ function initEnding() {
     });
 }
 
+
 function saveData() {
     localStorage.setItem('localData', JSON.stringify(localData));
-
 }
 
+
+// The magnifying glass was a late addition, so a lot of its logic and structure is very seperate from the rest
+const magContainer = document.getElementById("magnifier-container");
+const lensEffect = document.getElementById("lens-effect");
+const hitboxes = document.querySelectorAll(".hitbox");
+
+let isMagGlassDragging = false;
+let isGlassVisible = false;
+let magOffset = { x: 0, y: 0 };
+
+let targetX = 0;
+let targetY = 0;
+let currentX = 0;
+let currentY = 0;
+
+
+// Grabbing glass hitbox
+hitboxes.forEach(hb => {
+    hb.addEventListener("mousedown", (e) => {
+        isMagGlassDragging = true;
+        document.body.classList.add('is-dragging-glass');
+        
+        // Getting glass position
+        const rect = magContainer.getBoundingClientRect();
+        magOffset.x = e.clientX - rect.left;
+        magOffset.y = e.clientY - rect.top;
+    });
+});
+
+
+// Moving glass when dragging
+window.addEventListener("mousemove", (e) => {
+    if (!isMagGlassDragging) return;
+
+    // Setting target glass position
+    targetX = e.clientX - magOffset.x;
+    targetY = e.clientY - magOffset.y;
+});
+
+
+// Releasing glass
+window.addEventListener("mouseup", () => {
+    if (isMagGlassDragging) {
+        isMagGlassDragging = false;
+        document.body.classList.remove('is-dragging-glass');
+    }
+});
+
+// Updating zoom when window resized
+window.addEventListener("resize", () => {
+    if (isGlassVisible) updateStaticZoom();
+});
+
+
+// Slowly moving glass to target position smoothly
+const weight = 0.08;
+function animateMagnifier() {
+    if (!isGlassVisible) return;
+
+    // Moving glass based on weight
+    currentX += (targetX - currentX) * weight;
+    currentY += (targetY - currentY) * weight;
+
+    magContainer.style.left = `${currentX}px`;
+    magContainer.style.top = `${currentY}px`;
+
+    // Updating lens image after moving and looping
+    updateStaticZoom();
+    requestAnimationFrame(animateMagnifier);
+}
+
+// Starting glass movement update loop
+requestAnimationFrame(animateMagnifier);
+
+
+// Chaning lens image to zoomed in picture of document below it
+const zoomLevel = 2.5;
+function updateStaticZoom() {
+    // Calculating dimensions based on window size for consistent ui size
+    const vh = window.innerHeight / 100;
+    const containerWidth = 36.75 * vh;
+    const containerHeight = 80 * vh;
+
+    // Calculating lens center
+    const lensRadius = 32 * vh / 2;
+    const magRect = magContainer.getBoundingClientRect();
+    const lensScreenX = magRect.left + (containerWidth * 0.05) + lensRadius;
+    const lensScreenY = magRect.top + (containerHeight * 0.05) + lensRadius;
+
+    document.querySelectorAll(".zoomable").forEach(img => {
+        // Skipping hidden images
+        if (img.offsetParent === null) return;
+
+        // Calculating point on image to zoom on
+        const imgRect = img.getBoundingClientRect();
+        const xOnImage = lensScreenX - imgRect.left;
+        const yOnImage = lensScreenY - imgRect.top;
+        const bgX = (lensEffect.offsetWidth / 2) -(xOnImage * zoomLevel);
+        const bgY = (lensEffect.offsetHeight / 2) -(yOnImage * zoomLevel);
+
+        // Checking if glass is overlapping image and masking it if so
+        if (!((lensScreenX + lensRadius) < imgRect.left || (lensScreenX - lensRadius) > imgRect.right || (lensScreenY + lensRadius) < imgRect.top || (lensScreenY - lensRadius) > imgRect.bottom)) {
+            const mask = `radial-gradient(circle ${lensRadius - 2}px at ${xOnImage}px ${yOnImage}px, transparent 99%, black 100%)`;
+            img.style.webkitMaskImage = mask;
+            img.style.maskImage = mask;
+        } else {
+            img.style.webkitMaskImage = "none";
+            img.style.maskImage = "none";
+        }
+
+        // Not diplaying anything if view is outside of image
+        if ((bgX + imgRect.width * zoomLevel) <= 0 || bgX >= lensEffect.offsetWidth || (bgY + imgRect.height * zoomLevel) <= 0 || bgY >= lensEffect.offsetHeight) {
+            lensEffect.style.backgroundImage = "none";
+        } else {
+            // Applying the image to the lens and changing its position to match lens center
+            lensEffect.style.backgroundImage = `url('${img.src}')`;
+            lensEffect.style.backgroundSize = `${imgRect.width * zoomLevel}px ${imgRect.height * zoomLevel}px`;
+            lensEffect.style.backgroundPosition = `${bgX}px ${bgY}px`;
+        }
+    });
+}

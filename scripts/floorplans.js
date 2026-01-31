@@ -59,6 +59,7 @@ export const floorplans = [
     {"name": "bedroom", "displayName": "BEDROOM", "cost": 0, "types": ["Entry", "Bedroom"], "rarity": 1, "entrances": 2},
     {"name": "boudoir", "displayName": "BOUDOIR", "cost": 0, "types": ["Bedroom"], "rarity": 2, "entrances": 2},
     {"name": "guestbedroom", "displayName": "GUEST BEDROOM", "cost": 0, "types": ["Bedroom", "Dead End"], "rarity": 1, "entrances": 1},
+    {"name": "questbedroom", "displayName": "QUEST BEDROOM", "cost": 0, "types": ["Objective", "Bedroom", "Dead End", "Upgrade"], "rarity": 1, "entrances": 1},
     {"name": "nursery", "displayName": "NURSERY", "cost": 1, "types": ["Drafting", "Bedroom", "Dead End"], "rarity": 1, "entrances": 1},
     {"name": "nursesstation", "displayName": "NURSE'S STATION", "cost": 1, "types": ["Entry", "Bedroom", "Dead End", "Upgrade"], "rarity": 1, "entrances": 1},
     {"name": "indoornursery", "displayName": "INDOOR NURSERY", "cost": 1, "types": ["Drafting", "Green Room", "Dead End", "Upgrade"], "rarity": 1, "entrances": 1},
