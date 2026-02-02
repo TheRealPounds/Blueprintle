@@ -1,0 +1,84 @@
+<!--
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                            !!WARNING!!
+                        If you came to look in the code for hints for the puzzle, this is NOT a part of the intended solving experience!
+            None of the files/assets used by the webstie were meant for that use and could spoil certain parts as their implementation wasn't obfuscated!
+                                    If you came here for another reason, please don't judge my terrible code too harshly
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Blackprintle</title>
+        <link rel="icon" href="../assets/b-icon.png" type="image/x-icon">
+        <link rel="stylesheet" href="../stylesheets/b.css">
+    </head>
+    <body>
+        <div class="ui-container">
+            <div class="steps-container" >
+                <img class="steps-icon" src="../assets/steps-icon.png">
+                <span class="steps-counter">8</span>
+            </div>
+
+            <div id="magnifier-container" class="magnifier-container hidden">
+                <div class="hitbox circle-hitbox"></div>
+                <div class="hitbox handle-hitbox"></div>
+                <img src="../assets/magnifying-glass.png" class="glass-image">
+                <div id="lens-effect" class="lens-effect"></div>
+            </div>
+
+            <div id="final-letter-container" class="final-letter-container hidden">
+                <img id="final-letter" class="final-letter zoomable" src="../assets/final-letter0.png">
+                <button class="close-button clickable"><img class="close-icon" src="../assets/close-icon.png"></button>
+                <div class="page-buttons-container">
+                    <button id="prev-page-button" class="letter-page-button clickable">
+                        <img class="letter-page-icon" src="../assets/left-icon.png">
+                        <span class="letter-page-text">Prev page</span>
+                    </button>
+                    <button id="next-page-button" class="letter-page-button clickable">
+                        <img class="letter-page-icon" src="../assets/right-icon.png">
+                        <span class="letter-page-text">Next page</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="riddle-container" class="riddle-container hidden">
+                <img class="riddle zoomable" src="../assets/riddle.png">
+                <button id="close-button" class="close-button clickable"><img class="close-icon" src="../assets/close-icon.png"></button>
+            </div>
+        </div>
+        <div class="main-container vertical-container">
+            <img class="logo" src="../assets/b-logo.png">
+            <div id="boxes-container" class="boxes-container"></div>
+            <div id="safe-container" class="safe-container hidden">
+                <img class="boxes-open" src="../assets/mora-jai/boxes-open.png">
+                <button id="riddle-button" class="riddle-button clickable"><img class="riddle-note" src="../assets/riddle.png"></button>
+                <div id="closed-safe-container">
+                    <img class="safe-closed" src="../assets/safe-closed.png">
+                    <div>
+                        <button class="clickable safe-button button-1" data-text="1"></button>
+                        <button class="clickable safe-button button-2" data-text="2"></button>
+                        <button class="clickable safe-button button-3" data-text="3"></button>
+                        <button class="clickable safe-button button-4" data-text="4"></button>
+                        <button class="clickable safe-button button-5" data-text="5"></button>
+                        <button class="clickable safe-button button-6" data-text="6"></button>
+                        <button class="clickable safe-button button-7" data-text="7"></button>
+                        <button class="clickable safe-button button-8" data-text="8"></button>
+                        <button class="clickable safe-button button-9" data-text="9"></button>
+                        <button class="clickable safe-button button-0" data-text="0"></button>
+                        <button class="clickable safe-button button-clear" data-text="clear"></button>
+                        <button class="clickable safe-button button-enter" data-text="enter"></button>
+                    </div>
+                </div>
+                <div id="open-safe-container" class="hidden">
+                    <img class="safe-open" src="../assets/safe-open.png">
+                    <button id="final-letter-button" class="letter-button clickable"><img class="letter" src="../assets/final-letter.png"></button>
+                </div>
+            </div>
+        </div>
+
+        <script type="module" src="../scripts/b.js"></script>
+    </body>
+</html>

@@ -11,9 +11,10 @@ console.log("Main JS loaded");
 import { floorplans } from "../scripts/floorplans.js";
 
 const urlParams = new URLSearchParams(document.location.search);
-if (urlParams.get("color") === "black") window.location.href = "./blackprintle.html";
+if ((urlParams.get("color") && urlParams.get("color").toLowerCase() === "black") || (urlParams.get("Color") && urlParams.get("Color").toLowerCase() === "black") || (urlParams.get("COLOR") && urlParams.get("COLOR").toLowerCase() === "black")) window.location.href = "./blackprintle";
 const debug = urlParams.get("debug") === "true" ? true : false;
-const debugDay = urlParams.get("day");
+const endlessMode = debug || urlParams.get("endlessMode") === "true" ? true : false;
+const debugDay = null;//urlParams.get("day");
 
 const gallery = document.getElementById("gallery-viewport");
 const newFloorplansButton = document.getElementById("new-floorplans");
@@ -21,7 +22,7 @@ const prevButton = document.getElementById("prev-page-button");
 const nextButton = document.getElementById("next-page-button");
 const colorTextElm = document.getElementById("color-filter-text");
 
-const launchDate = new Date('2026-01-31T00:00:00').getTime();
+const launchDate = new Date('2026-02-02T00:00:00').getTime();
 const today = debugDay ? new Date(debugDay) : new Date();
 today.setHours(0, 0, 0, 0);
 const daysSinceLaunch = Math.floor((today.getTime() - launchDate) / 86400000);
@@ -85,9 +86,9 @@ function mulberry32(a) {
 // Getting today's floorplan by hashing today's date
 const hashGenerator = mulberry32(daysSinceLaunch + 12345);
 let correctFloorplan = floorplans[Math.floor(hashGenerator() * floorplans.length)];
-if (debug) {
+if (endlessMode) {
     correctFloorplan = floorplans[Math.floor(Math.random() * floorplans.length)];
-    console.log(correctFloorplan.name);
+    if (debug) console.log(correctFloorplan.name);
 }
 
 
@@ -107,7 +108,7 @@ if (!localData || debug) {
         "b" : [false, false, false, false, false, false, false, false, false, false, false]
     }
     saveData();
-    if (!debug) toggleUIContainer(true, "letter");
+    if (!debug) setTimeout(() => {toggleUIContainer(true, "letter")}, 500);
 }
 
 // Initializing based on local data
@@ -125,18 +126,20 @@ if (localData.lastDayPlayed != daysSinceLaunch) {
 }
 
 // Adding your guesses from today
-localData.guesses.forEach((guess) => {
-    // Checking if guessed correctly
-    if (correctFloorplan.name === guess) {
-        guessedCorrectly = true;
-        newFloorplansButton.classList.add("hidden");
-        setTimeout(function() {
-            initEnding();
-        }, 1500);
-    }
+if (!endlessMode) {
+    localData.guesses.forEach((guess) => {
+        // Checking if guessed correctly
+        if (correctFloorplan.name === guess) {
+            guessedCorrectly = true;
+            newFloorplansButton.classList.add("hidden");
+            setTimeout(function() {
+                initEnding();
+            }, 1500);
+        }
 
-    drawFloorplan(guess);
-});
+        drawFloorplan(guess);
+    });
+}
 
 // Setting mute status based on local data
 if (!localData.playsound) {
@@ -554,7 +557,7 @@ function choseFloorplan(name) {
     if (document.getElementById("draftsheet-container").classList.contains("active") === false || guessedCorrectly) return;
 
     // Preventing choosing if already chose this floorplan today
-    if (localData.guesses.includes(name) && !puzzleMode) {
+    if (localData.guesses.includes(name) && !(puzzleMode || endlessMode)) {
         if (cannotDraftTimer) {
             clearTimeout(cannotDraftTimer);
         }
@@ -566,13 +569,12 @@ function choseFloorplan(name) {
     }
 
     // Saving guess data
-    if (!puzzleMode) {
+    if (!(puzzleMode || endlessMode)) {
         localData.totalGuesses++;
         localData.guesses.push(name);
         saveData();
-    } else {
-        if (playsound) puzzleMusic.play();
     }
+    if (puzzleMode && playsound) puzzleMusic.play();
 
     // Saving last selected index
     lastSelectedIndex = floorplans.findIndex(fp => fp.name === name);
@@ -594,10 +596,12 @@ function choseFloorplan(name) {
         }, 1500);
 
         // Saving win data
-        localData.streak++;
-        localData.wins++;
-        localData.lastDayWon = daysSinceLaunch;
-        saveData();
+        if (!endlessMode) {
+            localData.streak++;
+            localData.wins++;
+            localData.lastDayWon = daysSinceLaunch;
+            saveData();
+        }
     }
 
     drawFloorplan(name);
@@ -705,7 +709,7 @@ function drawFloorplan(name) {
         if (name === sequence[puzzleMode-1]) {
             answers = {"cost": "blueprint", "type": "blueprint", "missing": "blueprint", "extra": "blueprint", "rarity": "blueprint", "entrances": "blueprint"};
             if (puzzleMode === sequence.length) {
-                floorplan = {"name": "", "displayName": "", "cost": 0, "types": [], "rarity": 0, "entrances": 0};
+                floorplan = {"name": "?", "displayName": "", "cost": 0, "types": [], "rarity": 6, "entrances": 0};
                 newFloorplansButton.classList.add("hidden");
                 const fadeOutInterval = setInterval(() => {
                     puzzleMusic.volume = Math.max(0, puzzleMusic.volume - 0.01);
@@ -730,6 +734,7 @@ function drawFloorplan(name) {
             gemsHTML += `<img class="gem" src="./assets/gem.png">`
         }
     }
+    if (floorplan.name === '?') gemsHTML = '?';
 
     // Creating types HTML with colors and icons
     let typesHTML = "";
@@ -739,8 +744,9 @@ function drawFloorplan(name) {
         i++;
         typesHTML += `<span class="info-text ${type.toLowerCase().replaceAll(' ', '-').replaceAll('"', '')}">${hasIcon.includes(type) ? `<img class="type-icon" src="./assets/${type.toLowerCase()}-type-icon.png">` : ""}${type}${i === floorplan.types.length ? "" : ", "}</span>`;
     });
+    if (floorplan.name === '?') typesHTML = '?';
 
-    const rarityNames = ["n/a", "Commonplace", "Standard", "Unusual", "Rare", "Rumored"];
+    const rarityNames = ["n/a", "Commonplace", "Standard", "Unusual", "Rare", "Rumored", "?"];
     //Creating new entry element
     const newEntryElement = document.createElement("div");
     newEntryElement.classList.add("floorplan-entry");
@@ -756,13 +762,13 @@ function drawFloorplan(name) {
                 <div>${typesHTML}</div>
                 <div>
                     <span class="${answers.rarity}">RARITY</span><span class="colon">:</span>
-                    ${floorplan.rarity >= 1 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="./assets/commonplace-dot.png">` : ""}
-                    ${floorplan.rarity >= 2 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="./assets/standard-dot.png">` : ""}
-                    ${floorplan.rarity >= 3 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="./assets/unusual-dot.png">` : ""}
-                    ${floorplan.rarity >= 4 && floorplan.rarity != 5 ? `<img class="rarity-dot" src="./assets/rare-dot.png">` : ""}
-                    <span class="info-text ${rarityNames[floorplan.rarity].toLowerCase()}">${rarityNames[floorplan.rarity]}</span>
+                    ${floorplan.rarity >= 1 && floorplan.rarity < 5 ? `<img class="rarity-dot" src="./assets/commonplace-dot.png">` : ""}
+                    ${floorplan.rarity >= 2 && floorplan.rarity < 5 ? `<img class="rarity-dot" src="./assets/standard-dot.png">` : ""}
+                    ${floorplan.rarity >= 3 && floorplan.rarity < 5 ? `<img class="rarity-dot" src="./assets/unusual-dot.png">` : ""}
+                    ${floorplan.rarity >= 4 && floorplan.rarity < 5 ? `<img class="rarity-dot" src="./assets/rare-dot.png">` : ""}
+                    <span class="${floorplan.rarity === 6 ? "" : "info-text"} ${rarityNames[floorplan.rarity].toLowerCase()}">${rarityNames[floorplan.rarity]}</span>
                 </div>
-                <div><span class="${answers.entrances}">ENTRANCES</span><span class="colon">:</span>${floorplan.entrances ? `<img class="type-icon" src="./assets/${floorplan.entrances}-icon.png">` : ""}</div>
+                <div><span class="${answers.entrances}">ENTRANCES</span><span class="colon">:</span>${floorplan.entrances ? `<img class="type-icon" src="./assets/${floorplan.entrances}-icon.png">` : "?"}</div>
             </div>
         </div>
         ${guessedCorrectly || puzzleMode ? "" : hintText}
@@ -896,11 +902,12 @@ if (debug || debugDay) {
 function initEnding() {
     // Setting stats from local data and floorplan image to today's floorplan
     endingOn = true;
-    document.getElementById("day-text").innerText = "Day " + daysSinceLaunch;
+    document.getElementById("day-text").innerText = endlessMode ? "Endless Mode" : "Day " + daysSinceLaunch;
+    document.getElementById("today-floorplan-text").innerText = endlessMode ? "Chosen floorplan:" : "Today's floorplan:"
     document.getElementById("today-floorplan").src = `./assets/floorplans/${correctFloorplan.name}.png`;
     document.getElementById("guesses-num").innerText = steps;
-    document.getElementById("average-num").innerText = Math.round(((localData.totalGuesses / localData.wins) + Number.EPSILON) * 10) / 10;
-    document.getElementById("streak-num").innerText = localData.streak;
+    document.getElementById("average-num").innerText = endlessMode ? "-" : Math.round(((localData.totalGuesses / localData.wins) + Number.EPSILON) * 10) / 10;
+    document.getElementById("streak-num").innerText = endlessMode ? "-" : localData.streak;
 
     // Playing ending music
     if (playsound) {

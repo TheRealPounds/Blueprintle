@@ -11,7 +11,7 @@ console.log("js loaded");
 
 let localData = JSON.parse(localStorage.getItem('localData'));
 // 0-8 individual boxes     9 big box      10 safe
-//localData.b = [false, false, false, false, false, false, false, false, false, false, false]; saveData();
+//localData.b = [true, true, true, true, true, true, true, true, true, true, false]; saveData();
 
 let isFinal = checkFinalBox();
 const boxesColorMatrix = [["red", "orange", "yellow"], ["green", "blue", "purple"], ["pink", "white", "black"]];
@@ -30,9 +30,9 @@ const baseMatrixes = [
         ["orange", "yellow", "blue"],
         ["orange", "green", "yellow"]
     ], [
-        ["pink", "pink", "grey"],
+        ["grey", "pink", "grey"],
         ["green", "green", "green"],
-        ["grey", "green", "grey"]
+        ["grey", "green", "pink"]
     ], [
         ["grey", "red", "grey"],
         ["black", "white", "grey"],
@@ -79,21 +79,22 @@ const boxSize = 250;
 const boxGap = 20;
 let isSliding = false;
 
-const tileClickSFX = new Audio("./audio/tile-click.mp3");
+const tileClickSFX = new Audio("../audio/tile-click.mp3");
 tileClickSFX.volume = 0.5;
-const cornerClickWrongSFX = new Audio("./audio/corner-click-wrong.mp3");
+const cornerClickWrongSFX = new Audio("../audio/corner-click-wrong.mp3");
 cornerClickWrongSFX.volume = 0.5;
-const cornerClickCorrectSFX = new Audio("./audio/corner-click-correct.mp3");
+const cornerClickCorrectSFX = new Audio("../audio/corner-click-correct.mp3");
 cornerClickCorrectSFX.volume = 0.5;
-const boxSolveSFX = new Audio("./audio/box-solve.mp3");
-const numbersSFXlist = [new Audio("./audio/number-click1.mp3"), new Audio("./audio/number-click2.mp3"), new Audio("./audio/number-click3.mp3")];
-const safeOpenSFX = new Audio("./audio/safe-open.mp3");
-const openSFXlist = [new Audio("./audio/open0.mp3"), new Audio("./audio/open1.mp3"), new Audio("./audio/open2.mp3"), new Audio("./audio/open3.mp3"), new Audio("./audio/open4.mp3"), new Audio("./audio/open5.mp3")];
+const boxSolveSFX = new Audio("../audio/box-solve.mp3");
+const numbersSFXlist = [new Audio("../audio/number-click1.mp3"), new Audio("../audio/number-click2.mp3"), new Audio("../audio/number-click3.mp3")];
+const safeOpenSFX = new Audio("../audio/safe-open.mp3");
+const openSFXlist = [new Audio("../audio/open0.mp3"), new Audio("../audio/open1.mp3"), new Audio("../audio/open2.mp3"), new Audio("../audio/open3.mp3"), new Audio("../audio/open4.mp3"), new Audio("../audio/open5.mp3")];
 openSFXlist.forEach((sfx) => {sfx.volume = 0.5;});
-const pageSFXlist = [new Audio("./audio/page0.mp3"), new Audio("./audio/page1.mp3"), new Audio("./audio/page2.mp3"), new Audio("./audio/page3.mp3")];
+const pageSFXlist = [new Audio("../audio/page0.mp3"), new Audio("../audio/page1.mp3"), new Audio("../audio/page2.mp3"), new Audio("../audio/page3.mp3")];
 pageSFXlist.forEach((sfx) => {sfx.volume = 0.5;});
 
 const safeCode = "1132";
+const boxesContainer = document.getElementById("boxes-container");
 const prevButton = document.getElementById("prev-page-button");
 const nextButton = document.getElementById("next-page-button");
 let letterPage = 0;
@@ -102,21 +103,26 @@ let safeInput = "";
 
 // Playing music once page is interacted with
 let music;
+let musicTimeout;
 let track = localData.b[10] ? "the-baron-of-mount-holly" : localData.b[9] ? "in-the-dim" : "dark-waters";
 document.addEventListener("click", () => {playMusic(track)}, {once: true});
 function playMusic() {
     if (!localData.playsound) return;
 
+    clearTimeout(musicTimeout);
+
     // Fading out music
     if (music) {
+        const oldMusic = music;
         const fadeOutInterval = setInterval(() => {
-            music.volume = Math.max(0, music.volume - 0.01);
-            if (music.volume === 0) clearInterval(fadeOutInterval);
+            oldMusic.volume = Math.max(0, oldMusic.volume - 0.01);
+            if (oldMusic.volume === 0) clearInterval(fadeOutInterval);
         }, 50);
     }
 
-    setTimeout(function() {
-        music = new Audio("./audio/" + track + ".mp3");
+    // Playing new music after music finished fading out
+    musicTimeout = setTimeout(function() {
+        music = new Audio("../audio/" + track + ".mp3");
         music.volume = 0.2;
         music.loop = true;
         music.play();
@@ -290,7 +296,7 @@ function changeLetterPage(page) {
 
     // Changing page
     letterPage = page;
-    document.getElementById("final-letter").src = `./assets/final-letter${page}.png`;
+    document.getElementById("final-letter").src = `../assets/final-letter${page}.png`;
 
     if (page === 0) {
         prevButton.classList.add("disabled");
@@ -316,25 +322,25 @@ function genBoxes() {
         if (localData.b[i]) {
             const color = colors[i];
             matrixes[i] = [[color, color, color], [color, color, color], [color, color, color]];
-            document.getElementById("boxes-container").innerHTML += `
+            boxesContainer.innerHTML += `
                 <div id="${i}" class="mora-jai-container"">
                     ${genCompletedBox(i)}
                 </div>
             `;
         } else {
-            document.getElementById("boxes-container").innerHTML += `
+            boxesContainer.innerHTML += `
                 <div id="${i}" class="mora-jai-container"">
-                    <img class="box" src="./assets/mora-jai/box.png">
+                    <img class="box" src="../assets/mora-jai/box.png">
                     <div class="tiles">
-                        <button class="clickable tile-button top-left" data-index="${i}00"><img id="${i}00" class="tile" src="./assets/mora-jai/top-side-tile.png"></button>
-                        <button class="clickable tile-button top-middle" data-index="${i}01"><img id="${i}01" class="tile" src="./assets/mora-jai/top-middle-tile.png"></button>
-                        <button class="clickable tile-button top-right" data-index="${i}02"><img id="${i}02" class="tile mirror" src="./assets/mora-jai/top-side-tile.png"></button>
-                        <button class="clickable tile-button middle-left" data-index="${i}10"><img id="${i}10" class="tile" src="./assets/mora-jai/middle-side-tile.png"></button>
-                        <button class="clickable tile-button middle-middle" data-index="${i}11"><img id="${i}11" class="tile" src="./assets/mora-jai/middle-middle-tile.png"></button>
-                        <button class="clickable tile-button middle-right" data-index="${i}12"><img id="${i}12" class="tile mirror" src="./assets/mora-jai/middle-side-tile.png"></button>
-                        <button class="clickable tile-button bottom-left" data-index="${i}20"><img id="${i}20" class="tile" src="./assets/mora-jai/bottom-side-tile.png"></button>
-                        <button class="clickable tile-button bottom-middle" data-index="${i}21"><img id="${i}21" class="tile" src="./assets/mora-jai/bottom-middle-tile.png"></button>
-                        <button class="clickable tile-button bottom-right" data-index="${i}22"><img id="${i}22" class="tile mirror" src="./assets/mora-jai/bottom-side-tile.png"></button>
+                        <button class="clickable tile-button top-left" data-index="${i}00"><img id="${i}00" class="tile" src="../assets/mora-jai/top-side-tile.png"></button>
+                        <button class="clickable tile-button top-middle" data-index="${i}01"><img id="${i}01" class="tile" src="../assets/mora-jai/top-middle-tile.png"></button>
+                        <button class="clickable tile-button top-right" data-index="${i}02"><img id="${i}02" class="tile mirror" src="../assets/mora-jai/top-side-tile.png"></button>
+                        <button class="clickable tile-button middle-left" data-index="${i}10"><img id="${i}10" class="tile" src="../assets/mora-jai/middle-side-tile.png"></button>
+                        <button class="clickable tile-button middle-middle" data-index="${i}11"><img id="${i}11" class="tile" src="../assets/mora-jai/middle-middle-tile.png"></button>
+                        <button class="clickable tile-button middle-right" data-index="${i}12"><img id="${i}12" class="tile mirror" src="../assets/mora-jai/middle-side-tile.png"></button>
+                        <button class="clickable tile-button bottom-left" data-index="${i}20"><img id="${i}20" class="tile" src="../assets/mora-jai/bottom-side-tile.png"></button>
+                        <button class="clickable tile-button bottom-middle" data-index="${i}21"><img id="${i}21" class="tile" src="../assets/mora-jai/bottom-middle-tile.png"></button>
+                        <button class="clickable tile-button bottom-right" data-index="${i}22"><img id="${i}22" class="tile mirror" src="../assets/mora-jai/bottom-side-tile.png"></button>
                     </div>
                     <div class="corners">
                         <button class="clickable corner-button top-left-corner" data-index="${i}0"><img id="${i}0" class="corner"></button>
@@ -347,6 +353,7 @@ function genBoxes() {
         }
         updateColors(i);
     };
+
     boxesMatrix = [
         [document.getElementById('0'), document.getElementById('1'), document.getElementById('2')],
         [document.getElementById('3'), document.getElementById('4'), document.getElementById('5')],
@@ -494,7 +501,7 @@ function updateColors(box) {
 // Updating corners state
 function updateCorners(box, state, realm) {
     for(let i = 0; i < 4; i++) {
-        document.getElementById(box.toString() + i.toString()).src = `./assets/mora-jai/${realm ? realm : realms[box]}-${i < 2 ? "top" : "bottom"}-${state || corners[box][i] ? "on" : "off"}.png`;
+        document.getElementById(box.toString() + i.toString()).src = `../assets/mora-jai/${realm ? realm : realms[box]}-${i < 2 ? "top" : "bottom"}-${state || corners[box][i] ? "on" : "off"}.png`;
     }
 }
 
@@ -502,17 +509,17 @@ function updateCorners(box, state, realm) {
 // Returns a completed box from matrix
 function genCompletedBox(box) {
     return `
-        <img class="box" src="./assets/mora-jai/box.png">
+        <img class="box" src="../assets/mora-jai/box.png">
         <div class="tiles">
-            <div class="tile-button top-left"><img id="${box}00" class="tile" src="./assets/mora-jai/top-side-tile.png"></div>
-            <div class="tile-button top-middle"><img id="${box}01" class="tile" src="./assets/mora-jai/top-middle-tile.png"></div>
-            <div class="tile-button top-right"><img id="${box}02" class="tile mirror" src="./assets/mora-jai/top-side-tile.png"></div>
-            <div class="tile-button middle-left"><img id="${box}10" class="tile" src="./assets/mora-jai/middle-side-tile.png"></div>
-            <div class="tile-button middle-middle"><img id="${box}11" class="tile" src="./assets/mora-jai/middle-middle-tile.png"></div>
-            <div class="tile-button middle-right"><img id="${box}12" class="tile mirror" src="./assets/mora-jai/middle-side-tile.png"></div>
-            <div class="tile-button bottom-left"><img id="${box}20" class="tile" src="./assets/mora-jai/bottom-side-tile.png"></div>
-            <div class="tile-button bottom-middle"><img id="${box}21" class="tile" src="./assets/mora-jai/bottom-middle-tile.png"></div>
-            <div class="tile-button bottom-right"><img id="${box}22" class="tile mirror" src="./assets/mora-jai/bottom-side-tile.png"></div>
+            <div class="tile-button top-left"><img id="${box}00" class="tile" src="../assets/mora-jai/top-side-tile.png"></div>
+            <div class="tile-button top-middle"><img id="${box}01" class="tile" src="../assets/mora-jai/top-middle-tile.png"></div>
+            <div class="tile-button top-right"><img id="${box}02" class="tile mirror" src="../assets/mora-jai/top-side-tile.png"></div>
+            <div class="tile-button middle-left"><img id="${box}10" class="tile" src="../assets/mora-jai/middle-side-tile.png"></div>
+            <div class="tile-button middle-middle"><img id="${box}11" class="tile" src="../assets/mora-jai/middle-middle-tile.png"></div>
+            <div class="tile-button middle-right"><img id="${box}12" class="tile mirror" src="../assets/mora-jai/middle-side-tile.png"></div>
+            <div class="tile-button bottom-left"><img id="${box}20" class="tile" src="../assets/mora-jai/bottom-side-tile.png"></div>
+            <div class="tile-button bottom-middle"><img id="${box}21" class="tile" src="../assets/mora-jai/bottom-middle-tile.png"></div>
+            <div class="tile-button bottom-right"><img id="${box}22" class="tile mirror" src="../assets/mora-jai/bottom-side-tile.png"></div>
         </div>
         <div class="corners">
             <div class="corner-button top-left-corner"><img id="${box}0" class="corner";"></div>
@@ -530,6 +537,12 @@ function addBoxListeners() {
     track = "in-the-dim";
     playMusic();
 
+    // Showing variation note
+    boxesContainer.insertAdjacentHTML('beforeend', `<img class="variation-note" src=../assets/variation-note.png>`);
+    if (localData.playsound) {
+        openSFXlist[Math.floor(Math.random() * openSFXlist.length)].play();
+    }
+
     document.querySelectorAll(".mora-jai-container").forEach((box) => {
         box.classList.add("clickable");
         box.addEventListener("click", () => {
@@ -540,7 +553,8 @@ function addBoxListeners() {
                     if (boxesMatrix[row][col].id === box.id) {
                         tilePressed('9' + row.toString() + col.toString());
 
-                        if (checkFinalSolved()) {
+                        // Checking if final box was solved
+                        if (boxesColorMatrix[0][0] === "black" && boxesColorMatrix[0][2] === "black" && boxesColorMatrix[2][0] === "black" && boxesColorMatrix[2][2] === "black") {
                             // Saving solve to local data
                             localData.b[9] = true;
                             saveData();
@@ -550,7 +564,7 @@ function addBoxListeners() {
 
                             //Removing boxes and displaying safe
                             setTimeout(() => {
-                                document.getElementById("boxes-container").innerHTML = "";
+                                boxesContainer.innerHTML = "";
                                 document.getElementById("safe-container").classList.remove("hidden");
                             }, 1500);
                         }
@@ -574,6 +588,9 @@ function checkFinalSolved() {
 
 // Changing color of a tile
 function changeColor(matrix, row, col, color) {
+    // Blackprintle variation
+    if (isFinal && color === "grey") color = "black";
+
     // Changing color in matrix
     matrix[row][col] = color;
 

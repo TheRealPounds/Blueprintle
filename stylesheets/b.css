@@ -227,6 +227,12 @@ body {
     filter: grayscale(100%) brightness(115%);
 }
 
+.variation-note {
+    position: relative;
+    left: 110%;
+    width: 50%;
+}
+
 .safe-container {
     position: relative;
     width: 700px;

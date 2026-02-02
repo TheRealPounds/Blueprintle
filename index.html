@@ -12,9 +12,19 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Blueprintle</title>
+        <meta name="description" content="A Wordle inspired web game for guessing different floorplans from the game Blue Prince!">
+
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://www.blueprintle.org/">
+        <meta property="og:title" content="Blueprintle">
+        <meta property="og:description" content="A Wordle inspired web game for guessing different floorplans from the game Blue Prince!">
+        <meta property="og:image" content="https://www.blueprintle.org/assets/preview-image.png">
+        <meta name="twitter:card" content="summary_large_image">
+
         <link rel="icon" href="./assets/icon.png" type="image/x-icon">
         <link rel="stylesheet" href="./stylesheets/main.css">
         <link rel="stylesheet" href="./stylesheets/colors.css">
+
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
@@ -100,7 +110,7 @@
                 </div>
                 <div class="ending-center-container">
                     <div id="today-floorplan-container" class="today-floorplan-container">
-                        <span class="today-floorplan-text">Today's Floorplan:</span>
+                        <span id="today-floorplan-text" class="today-floorplan-text"></span>
                         <img id="today-floorplan" class="today-floorplan" src="./assets/floorplans/antechamber.png">
                     </div>
                     <div class="ending-stats-container">
@@ -136,5 +146,4 @@
 
         <script type="module" src="./scripts/main.js"></script>
     </body>
-
 </html>
