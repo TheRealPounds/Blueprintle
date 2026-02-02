@@ -22,7 +22,7 @@ const prevButton = document.getElementById("prev-page-button");
 const nextButton = document.getElementById("next-page-button");
 const colorTextElm = document.getElementById("color-filter-text");
 
-const launchDate = new Date('2026-02-02T00:00:00').getTime();
+const launchDate = new Date('2026-02-01T00:00:00').getTime();
 const today = debugDay ? new Date(debugDay) : new Date();
 today.setHours(0, 0, 0, 0);
 const daysSinceLaunch = Math.floor((today.getTime() - launchDate) / 86400000);
@@ -1081,4 +1081,5 @@ function updateStaticZoom() {
             lensEffect.style.backgroundPosition = `${bgX}px ${bgY}px`;
         }
     });
+
 }
