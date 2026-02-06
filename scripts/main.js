@@ -13,8 +13,9 @@ import { floorplans } from "../scripts/floorplans.js";
 const urlParams = new URLSearchParams(document.location.search);
 if ((urlParams.get("color") && urlParams.get("color").toLowerCase() === "black") || (urlParams.get("Color") && urlParams.get("Color").toLowerCase() === "black") || (urlParams.get("COLOR") && urlParams.get("COLOR").toLowerCase() === "black")) window.location.href = "./blackprintle";
 const debug = urlParams.get("debug") === "true" ? true : false;
-const endlessMode = debug || urlParams.get("endlessMode") === "true" ? true : false;
-const debugDay = null;//urlParams.get("day");
+const endlessMode = debug || urlParams.get("endlessMode") === "true" ? true : false || urlParams.get("endless") === "true" ? true : false;
+const debugDay = urlParams.get("day");
+const debugFloorplan = urlParams.get("floorplan");
 
 const gallery = document.getElementById("gallery-viewport");
 const newFloorplansButton = document.getElementById("new-floorplans");
@@ -22,7 +23,7 @@ const prevButton = document.getElementById("prev-page-button");
 const nextButton = document.getElementById("next-page-button");
 const colorTextElm = document.getElementById("color-filter-text");
 
-const launchDate = new Date('2026-02-01T00:00:00').getTime();
+const launchDate = new Date('2026-02-02T00:00:00').getTime();
 const today = debugDay ? new Date(debugDay) : new Date();
 today.setHours(0, 0, 0, 0);
 const daysSinceLaunch = Math.floor((today.getTime() - launchDate) / 86400000);
@@ -45,6 +46,9 @@ exitSFX.volume = 0.5;
 const puzzleMusic = new Audio("./audio/stories-of-all-manor.mp3");
 puzzleMusic.loop = true;
 puzzleMusic.volume = 0.2;
+const settingsOpenSFX = new Audio("./audio/breaker-box-open.mp3");
+const settingsCloseSFX = new Audio("./audio/breaker-box-close.mp3");
+const settingsSwitchSFX = new Audio("./audio/breaker-toggle.mp3");
 
 const itemWidth = window.innerWidth * 0.16;
 let isScrolling = false;
@@ -60,10 +64,12 @@ let velX = 0;
 let momentumID;
 let lastSelectedIndex = null;
 
+let onMobile = false;
+onMobile = (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) return true;})(navigator.userAgent||navigator.vendor||window.opera);
 let guessedCorrectly = false;
 let steps = 0;
 let letterPage = 0;
-let playsound = true;
+let sound = true;
 let endingOn = false;
 let hints = 0;
 let hintText = "";
@@ -83,33 +89,88 @@ function mulberry32(a) {
     }
 }
 
-// Getting today's floorplan by hashing today's date
+const dateOverrides = {
+    "2026-03-03": "office",
+    "2026-03-20": "room46",
+    "2026-04-10": "throneoftheblueprince",
+    "2026-04-15": "drawingroom",
+    "2026-05-08": "classroom",
+    "2026-11-07": "entrancehall",
+    "2026-11-08": "draftingstudio",
+    "2026-12-08": "study",
+    "2026-12-25": "boudoir",
+    "2027-01-30": "shelter",
+    "2028-08-08": "room8"
+};
 const hashGenerator = mulberry32(daysSinceLaunch + 12345);
-let correctFloorplan = floorplans[Math.floor(hashGenerator() * floorplans.length)];
-if (endlessMode) {
-    correctFloorplan = floorplans[Math.floor(Math.random() * floorplans.length)];
-    if (debug) console.log(correctFloorplan.name);
+let correctFloorplan;
+if (debugFloorplan) {
+    correctFloorplan = floorplans.find(fp => fp.name === debugFloorplan);
+} else {
+    if (endlessMode) {
+        // Picking random floorplan in endless mode
+        correctFloorplan = floorplans[Math.floor(Math.random() * floorplans.length)];
+        if (debug) console.log(correctFloorplan.name);
+    } else {
+        // Either picking a floorplan from hashed date or the date override if there is one
+        const todayString = new Intl.DateTimeFormat('en-CA').format(today);
+        if (dateOverrides[todayString]) {
+            correctFloorplan = floorplans.find(fp => fp.name === dateOverrides[todayString]);
+        } else {
+            correctFloorplan = floorplans[Math.floor(hashGenerator() * floorplans.length)];
+        }
+    }
 }
 
 
 // Loading local user data
 let localData = JSON.parse(localStorage.getItem('localData'));
+let settings = JSON.parse(localStorage.getItem('settings'));
 
 // If local data doesn't exist, set default and display into letter
 if (!localData || debug) {
     localData = {
-        "playsound": true,
         "streak": 0,
         "wins": 0,
         "totalGuesses": 0,
         "guesses": [],
         "lastDayPlayed": 0,
         "lastDayWon": 0,
-        "b" : [false, false, false, false, false, false, false, false, false, false, false]
     }
     saveData();
     if (!debug) setTimeout(() => {toggleUIContainer(true, "letter")}, 500);
 }
+
+if (!settings) {
+    settings = {
+        "sound": true,
+        "hints": true,
+        "colorblindIcons": true,
+        "b" : [false, false, false, false, false, false, false, false, false, false, false]
+    }
+    saveData();
+}
+
+// Local storage old format data fix 
+if (localData.playsound) {
+    settings.sound = localData.playsound;
+    delete localData.playsound;
+    saveData();
+}
+if (localData.b) {
+    settings.b = localData.b;
+    delete localData.b;
+    saveData();
+}
+
+function updateSettingsSwitches() {
+    console.log(settings);
+    if (endlessMode) document.getElementById("endless-button").classList.add("active");
+    settings.sound ? document.getElementById("sound-setting").classList.add("active") : document.getElementById("sound-setting").classList.remove("active");
+    settings.hints ? document.getElementById("hints-setting").classList.add("active") : document.getElementById("hints-setting").classList.remove("active");
+    settings.colorblindIcons ? document.getElementById("colorblind-icons-setting").classList.add("active") : document.getElementById("colorblind-icons-setting").classList.remove("active");
+}
+updateSettingsSwitches();
 
 // Initializing based on local data
 if (localData.lastDayPlayed != daysSinceLaunch) {
@@ -124,6 +185,8 @@ if (localData.lastDayPlayed != daysSinceLaunch) {
 
     saveData();
 }
+
+let shareString = `Blueprintle${settings.b[10] ? "👑" : ""} - Day ${daysSinceLaunch === 1 ? "One" : daysSinceLaunch}\n💎 🅰️ 🅱️ 🔴 🚪\n`;
 
 // Adding your guesses from today
 if (!endlessMode) {
@@ -141,15 +204,8 @@ if (!endlessMode) {
     });
 }
 
-// Setting mute status based on local data
-if (!localData.playsound) {
-    playsound = false;
-    document.getElementById("mute-icon").src = `./assets/muted-icon.png`;
-}
-
-
 // Showing crowns in puzzle was completed
-if (localData.b[10]) {
+if (settings.b[10]) {
     document.querySelectorAll(".crown").forEach((elm) => {
         elm.classList.remove("hidden");
     });
@@ -178,10 +234,27 @@ setInterval(function() {
 }, 1000);
 
 
+// Hiding site if on vertical mode
+const portraitQuery = window.matchMedia("(orientation: portrait)");
+handleOrientationChange(portraitQuery);
+function handleOrientationChange(e) {
+    if (e.matches) {
+        document.getElementById("every-container").classList.add("hidden");
+        document.getElementById("mobile-warning").classList.remove("hidden");
+    } else {
+        document.getElementById("every-container").classList.remove("hidden");
+        document.getElementById("mobile-warning").classList.add("hidden");
+    }
+}
+
+// Listen for rotation changes
+portraitQuery.addEventListener("change", handleOrientationChange);
+
+
 // Adding hover sound effect to all clickables
 document.querySelectorAll(".clickable").forEach((button) => {
     button.addEventListener("mouseenter", () => {
-        if (playsound) {
+        if (sound) {
             hoverSFX.play();
         }
     });
@@ -207,10 +280,11 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
 
 
     // Focusing on search input
-    document.getElementById("search-input").focus();
+    document.getElementById("filter-container").classList.remove("hidden");
+    if(!onMobile) document.getElementById("search-input").focus();
 
     // Playing sfx
-    if (playsound) {
+    if (sound) {
         draftStartSFX.play();
     }
     
@@ -242,7 +316,7 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
         });
 
         fp.addEventListener("mouseenter", () => {
-            if (playsound && !isMouseDown) {
+            if (sound && !isMouseDown) {
                 hoverSFX.play();
             }
         });
@@ -262,7 +336,7 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
     setTimeout(function() {
         document.getElementById("measure-line").classList.add("active");
         gallery.classList.add("active");
-        document.getElementById("filter-container").style.left =  "50%";
+        document.getElementById("filter-container").style.opacity = 1;
     }, 1200);
 
     // Showing search and filter bar
@@ -486,8 +560,8 @@ document.getElementById("intro-letter").addEventListener("click", () => {
 // UI close button
 document.querySelectorAll(".close-button").forEach((button) => {
     button.addEventListener("click", (event) => {
-        toggleUIContainer(false, "letter");
-        toggleUIContainer(false, "kofi");
+        toggleUIContainer(false);
+        hideDraftSelect();
     });
 });
 
@@ -495,11 +569,8 @@ document.querySelectorAll(".close-button").forEach((button) => {
 // Escape key to close ui
 document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-        toggleUIContainer(false, "letter");
-        toggleUIContainer(false, "kofi");
-        if (document.getElementById("draftsheet-container").classList.contains("active")) {
-            hideDraftSelect();
-        }
+        toggleUIContainer(false);
+        hideDraftSelect();
     }
 });
 
@@ -518,34 +589,60 @@ nextButton.addEventListener("click", (event) => {
 
 // Letter button
 document.getElementById("letter-button").addEventListener("click", (event) => {
-    toggleUIContainer(false, "kofi");
     if (document.getElementById("letter-container").classList.contains("hidden")) {
+        toggleUIContainer(false);
         toggleUIContainer(true, "letter");
     } else {
-        toggleUIContainer(false, "letter");
+        toggleUIContainer(false);
     }
 });
 
 
 // Kofi button
 document.getElementById("kofi-button").addEventListener("click", (event) => {
-    toggleUIContainer(false, "letter");
     if (document.getElementById("kofi-container").classList.contains("hidden")) {
+        toggleUIContainer(false);
         toggleUIContainer(true, "kofi");
     } else {
-        toggleUIContainer(false, "kofi");
+        toggleUIContainer(false);
     }
 });
 
 
-// Mute button
-document.getElementById("mute-button").addEventListener("click", (event) => {
-    playsound = !playsound;
-    document.getElementById("mute-icon").src = `./assets/${playsound ? "un" : ""}muted-icon.png`;
+// Settings button
+document.getElementById("settings-button").addEventListener("click", (event) => {
+    if (document.getElementById("settings-container").classList.contains("hidden")) {
+        toggleUIContainer(false);
+        toggleUIContainer(true, "settings");
+    } else {
+        toggleUIContainer(false);
+    }
+});
 
-    // Saving mute preference to local data
-    localData.playsound = playsound;
-    saveData();
+
+// Endless mode toggle switch, sending to page with toggled mode
+document.getElementById("endless-button").addEventListener("click", () => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("endless") || url.searchParams.has("endlessMode")) {
+        url.searchParams.delete("endless");
+        url.searchParams.delete("endlessMode");
+    } else {
+        url.searchParams.set("endless", "true");
+    }
+    window.location.href = url.toString();
+});
+
+
+// Settings switches
+document.querySelectorAll(".switch-button").forEach((swtch) => {
+    if (swtch.id === "endless-button") return;
+    swtch.addEventListener("click", () => {
+        const setting = swtch.getAttribute("data-setting");
+        settings[setting] = !settings[setting];
+        updateSettingsSwitches();
+        saveData();
+        if (settings.sound) settingsSwitchSFX.play();
+    });
 });
 
 
@@ -555,6 +652,9 @@ const cannotDraftClasslist = document.getElementById("cannot-draft").classList;
 function choseFloorplan(name) {
     // Preventing choosing when not active or if already guessed correctly
     if (document.getElementById("draftsheet-container").classList.contains("active") === false || guessedCorrectly) return;
+
+    // Removing focus from search input
+    document.getElementById("search-input").blur();
 
     // Preventing choosing if already chose this floorplan today
     if (localData.guesses.includes(name) && !(puzzleMode || endlessMode)) {
@@ -574,13 +674,13 @@ function choseFloorplan(name) {
         localData.guesses.push(name);
         saveData();
     }
-    if (puzzleMode && playsound) puzzleMusic.play();
+    if (puzzleMode && sound) puzzleMusic.play();
 
     // Saving last selected index
     lastSelectedIndex = floorplans.findIndex(fp => fp.name === name);
 
     // Playing sfx
-    if (playsound) {
+    if (sound) {
         draftEndSFX.play();
     }
 
@@ -611,7 +711,7 @@ function choseFloorplan(name) {
 // Adding floorplan info to screen
 function drawFloorplan(name) {
     let floorplan;
-    let answers = {"cost": "wrong", "type": "wrong", "missing": "wrong", "extra": "wrong", "rarity": "wrong", "entrances": "wrong"};
+    let answers = {"cost": "wrong", "type": "wrong", "absent": "wrong", "excess": "wrong", "rarity": "wrong", "entrances": "wrong"};
     if (!puzzleMode) {
         // Incrementing steps
         steps++;
@@ -633,23 +733,23 @@ function drawFloorplan(name) {
 
         // Type comparison
         const numTypesShared = correctFloorplan.types.filter(value => floorplan.types.includes(value)).length;
-        const numTypesExtra = floorplan.types.length - numTypesShared;
+        const numTypesExcess = floorplan.types.length - numTypesShared;
         const numTypesCorrect = correctFloorplan.types.length;
         if (numTypesShared != 0) {
             answers.type = "close";
-            answers.missing = "close";
-            answers.extra = "close";
+            answers.absent = "close";
+            answers.excess = "close";
 
             if (numTypesShared == numTypesCorrect) {
-                answers.missing = "correct";
+                answers.absent = "correct";
                 numGreen++;
-                if (numTypesExtra == 0) {
+                if (numTypesExcess == 0) {
                     answers.type = "correct";
-                    answers.extra = "correct";
+                    answers.excess = "correct";
                 }
             } else {
-                if (numTypesExtra == 0) {
-                    answers.extra = "correct";
+                if (numTypesExcess == 0) {
+                    answers.excess = "correct";
                     numGreen++;
                 }
             }
@@ -678,7 +778,7 @@ function drawFloorplan(name) {
         }
 
         // Increasing hint count if guess is almost correct
-        if (hints != name.length && (hints > 8 || numGreen >= 3)) {
+        if (settings.hints && hints != name.length && (steps > 3 || numGreen === 4) && (steps >= 8 || numGreen >= 3)) {
             hints++;
             let visibleCharCount = hints - 1;
             let words = correctFloorplan.displayName.split(' ');
@@ -707,7 +807,7 @@ function drawFloorplan(name) {
         }
     } else {
         if (name === sequence[puzzleMode-1]) {
-            answers = {"cost": "blueprint", "type": "blueprint", "missing": "blueprint", "extra": "blueprint", "rarity": "blueprint", "entrances": "blueprint"};
+            answers = {"cost": "blueprint", "type": "blueprint", "absent": "blueprint", "excess": "blueprint", "rarity": "blueprint", "entrances": "blueprint"};
             if (puzzleMode === sequence.length) {
                 floorplan = {"name": "?", "displayName": "", "cost": 0, "types": [], "rarity": 6, "entrances": 0};
                 newFloorplansButton.classList.add("hidden");
@@ -724,6 +824,7 @@ function drawFloorplan(name) {
             floorplan = floorplans.find(fp => fp.name === name);
         }
     }
+    shareString += answerToEmoji(answers.cost) + answerToEmoji(answers.absent) + answerToEmoji(answers.excess) + answerToEmoji(answers.rarity) + answerToEmoji(answers.entrances) + '\n';
 
     // Creating gems HTML
     let gemsHTML = "";
@@ -754,13 +855,14 @@ function drawFloorplan(name) {
         <div class="flex-row">
             <img class="floorplan" src="./assets/floorplans/${name}.png">
             <div class="info-container">
-                <div><span class="${answers.cost}">COST</span><span class="colon">:</span>${gemsHTML}</div>
+                <div>${settings.colorblindIcons ? `<img class="answer-icon" src="./assets/${answers.cost}.png">` : ""}<span class="${answers.cost}">COST</span><span class="colon">:</span>${gemsHTML}</div>
                 <div>
                     <span class="${answers.type}">TYPE </span>
-                    <span class="wrong" style="font-size: clamp(10px, 18px, 1.7vw)">(<span class="${answers.missing}">MISSING</span> - <span class="${answers.extra}">EXTRA</span>)</span><span class="colon">:</span>   
+                    <span class="wrong" style="font-size: clamp(10px, 18px, 1.7vw)">(${settings.colorblindIcons ? `<img class="answer-icon" src="./assets/${answers.absent}.png">` : ""}<span class="${answers.absent}">ABSENT</span> - ${settings.colorblindIcons ? `<img class="answer-icon" src="./assets/${answers.excess}.png">` : ""}<span class="${answers.excess}">EXCESS</span>)</span><span class="colon">:</span>
                 </div>
                 <div>${typesHTML}</div>
                 <div>
+                    ${settings.colorblindIcons ? `<img class="answer-icon" src="./assets/${answers.rarity}.png">` : ""}
                     <span class="${answers.rarity}">RARITY</span><span class="colon">:</span>
                     ${floorplan.rarity >= 1 && floorplan.rarity < 5 ? `<img class="rarity-dot" src="./assets/commonplace-dot.png">` : ""}
                     ${floorplan.rarity >= 2 && floorplan.rarity < 5 ? `<img class="rarity-dot" src="./assets/standard-dot.png">` : ""}
@@ -768,7 +870,7 @@ function drawFloorplan(name) {
                     ${floorplan.rarity >= 4 && floorplan.rarity < 5 ? `<img class="rarity-dot" src="./assets/rare-dot.png">` : ""}
                     <span class="${floorplan.rarity === 6 ? "" : "info-text"} ${rarityNames[floorplan.rarity].toLowerCase()}">${rarityNames[floorplan.rarity]}</span>
                 </div>
-                <div><span class="${answers.entrances}">ENTRANCES</span><span class="colon">:</span>${floorplan.entrances ? `<img class="type-icon" src="./assets/${floorplan.entrances}-icon.png">` : "?"}</div>
+                <div>${settings.colorblindIcons ? `<img class="answer-icon" src="./assets/${answers.entrances}.png">` : ""}<span class="${answers.entrances}">ENTRANCES</span><span class="colon">:</span>${floorplan.entrances ? `<img class="type-icon" src="./assets/${floorplan.entrances}-icon.png">` : "?"}</div>
             </div>
         </div>
         ${guessedCorrectly || puzzleMode ? "" : hintText}
@@ -804,15 +906,33 @@ function drawFloorplan(name) {
     }, 500);
 }
 
+function answerToEmoji(answer) {
+    switch(answer) {
+        case "wrong":
+            return "⬛ ";
+        case "close":
+            return "🟨 ";
+        case "correct":
+            return "🟩 ";
+        default:
+            return " ";
+    }
+}
+
 function hideDraftSelect() {
-    document.getElementById("draftsheet-container").classList.remove("active");
+    if (document.getElementById("draftsheet-container").classList.contains("active")) {
+        document.getElementById("draftsheet-container").classList.remove("active");
+    } else {
+        return;
+    }
 
     // Resetting new floorplan button and animations when offscreen
     setTimeout(function() {
         document.getElementById("draft-select-text").classList.remove("active");
         document.getElementById("measure-line").classList.remove("active");
         gallery.classList.remove("active");
-        document.getElementById("filter-container").style.left = "150%";
+        document.getElementById("filter-container").classList.add("hidden");
+        document.getElementById("filter-container").style.opacity = 0;
         document.getElementById("filter-container").classList.remove("active");
         newFloorplansButton.classList.add("clickable");
         newFloorplansButton.classList.remove("disabled");
@@ -820,14 +940,26 @@ function hideDraftSelect() {
 }
 
 // Toggling intro letter or kofi note state
+const containers = ["letter", "kofi", "settings"];
 function toggleUIContainer(open, container) {
+    // If no container was provided, closing all uis
+    if (!container) {
+        containers.forEach((c) => toggleUIContainer(false, c));
+        document.getElementById("close-button").classList.add("hidden");
+        return;
+    }
+
     // Exiting if ui state is already matched
     const containerElm = document.getElementById(`${container}-container`)
     if (containerElm.classList.contains("hidden") !== open) return;
 
     // Playing sfx
-    if (playsound) {
-        openSFXlist[Math.floor(Math.random() * openSFXlist.length)].play();
+    if (sound) {
+        if (container === "settings") {
+            open ? settingsOpenSFX.play() : settingsCloseSFX.play();
+        } else {
+            openSFXlist[Math.floor(Math.random() * openSFXlist.length)].play();
+        }
     }
 
     if (open === true) {
@@ -836,22 +968,23 @@ function toggleUIContainer(open, container) {
             changeLetterPage(0);
         }
 
+        document.getElementById("close-button").classList.remove("hidden");
         containerElm.classList.remove("hidden");
-
-        if (!isGlassVisible) {
-            currentX = -(36.75 * window.innerHeight / 100) - 50;
-            currentY = window.innerHeight + 50; 
-
-            targetX = window.innerWidth * 0.05;
-            targetY = window.innerHeight * 0.5;
-
-            isGlassVisible = true;
-            magContainer.classList.remove("hidden");
-            requestAnimationFrame(animateMagnifier);
-        }
     } else {
         containerElm.classList.add("hidden");
+    }
 
+    if ((container === "letter" || container === "kofi") && open === true && !isGlassVisible) {
+        currentX = -(36.75 * window.innerHeight / 100) - 50;
+        currentY = window.innerHeight + 50; 
+
+        targetX = window.innerWidth * 0.05;
+        targetY = window.innerHeight * 0.5;
+
+        isGlassVisible = true;
+        magContainer.classList.remove("hidden");
+        requestAnimationFrame(animateMagnifier);
+    } else {
         magContainer.classList.add("hidden");
         isGlassVisible = false;
     }
@@ -861,11 +994,11 @@ function toggleUIContainer(open, container) {
 // Changing page in intro letter
 function changeLetterPage(page) {
     // Checking if page change is valid
-    const finalPage = 3;
+    const finalPage = 4;
     if (page < 0 || page > finalPage) return;
 
     // Playing sfx
-    if (playsound) {
+    if (sound) {
         pageSFXlist[Math.floor(Math.random() * pageSFXlist.length)].play();
     }
 
@@ -902,15 +1035,33 @@ if (debug || debugDay) {
 function initEnding() {
     // Setting stats from local data and floorplan image to today's floorplan
     endingOn = true;
-    document.getElementById("day-text").innerText = endlessMode ? "Endless Mode" : "Day " + daysSinceLaunch;
+    const dayText = document.getElementById("day-text");
+    if (endlessMode) {
+        dayText.innerText = "Endless Mode";
+    } else {
+        switch(daysSinceLaunch) {
+            case 0:
+                dayText.innerText = "The Day Before..";
+                break;
+            
+            case 1:
+                dayText.innerText = "Day One";
+                break;
+            
+            default:
+                dayText.innerText = "Day " + daysSinceLaunch;
+                break;
+        }
+    }
     document.getElementById("today-floorplan-text").innerText = endlessMode ? "Chosen floorplan:" : "Today's floorplan:"
     document.getElementById("today-floorplan").src = `./assets/floorplans/${correctFloorplan.name}.png`;
     document.getElementById("guesses-num").innerText = steps;
     document.getElementById("average-num").innerText = endlessMode ? "-" : Math.round(((localData.totalGuesses / localData.wins) + Number.EPSILON) * 10) / 10;
     document.getElementById("streak-num").innerText = endlessMode ? "-" : localData.streak;
+    shareString += steps.toString() + (steps === 1 ? " guess" : " guesses");
 
     // Playing ending music
-    if (playsound) {
+    if (sound) {
         endingMusic.play();
     }
 
@@ -940,7 +1091,7 @@ function initEnding() {
         }, 1000);
 
         // Fading out music
-        if (playsound) {
+        if (sound) {
             exitSFX.play();
 
             const fadeOutInterval = setInterval(() => {
@@ -954,11 +1105,32 @@ function initEnding() {
             }, 1000);
         }
     });
+
+    // Copying share string
+    let copiedTimer;
+    document.getElementById("ending-share-button").addEventListener("click", () => {
+        navigator.clipboard.writeText(shareString);
+
+        // Playing sfx
+        if (sound) exitSFX.play();
+
+        // Showing copied text
+        if (copiedTimer) {
+            clearTimeout(copiedTimer);
+        }
+        console.log(document.getElementById("copied-text"), document.getElementById("copied-text").classList)
+        document.getElementById("copied-text").classList.remove("hidden");
+        copiedTimer = setTimeout(() => {
+            document.getElementById("copied-text").classList.add("hidden");
+        }, 2000);
+        return;
+    });
 }
 
 
 function saveData() {
     localStorage.setItem('localData', JSON.stringify(localData));
+    localStorage.setItem('settings', JSON.stringify(settings));
 }
 
 
@@ -990,6 +1162,24 @@ hitboxes.forEach(hb => {
     });
 });
 
+// Grabbing glass hitbox (Touch)
+hitboxes.forEach(hb => {
+    hb.addEventListener("touchstart", (e) => {
+        // Prevent browser scrolling/zooming when touching the glass
+        if (e.cancelable) e.preventDefault(); 
+
+        isMagGlassDragging = true;
+        document.body.classList.add('is-dragging-glass');
+        
+        // Get the first finger's position
+        const touch = e.touches[0];
+        const rect = magContainer.getBoundingClientRect();
+        
+        magOffset.x = touch.clientX - rect.left;
+        magOffset.y = touch.clientY - rect.top;
+    }, { passive: false });
+});
+
 
 // Moving glass when dragging
 window.addEventListener("mousemove", (e) => {
@@ -1001,6 +1191,19 @@ window.addEventListener("mousemove", (e) => {
 });
 
 
+// Moving glass when dragging (Touch)
+window.addEventListener("touchmove", (e) => {
+    if (!isMagGlassDragging) return;
+    
+    // Stop the screen from scrolling while dragging the glass
+    if (e.cancelable) e.preventDefault(); 
+
+    const touch = e.touches[0];
+    targetX = touch.clientX - magOffset.x;
+    targetY = touch.clientY - magOffset.y;
+}, { passive: false });
+
+
 // Releasing glass
 window.addEventListener("mouseup", () => {
     if (isMagGlassDragging) {
@@ -1008,6 +1211,16 @@ window.addEventListener("mouseup", () => {
         document.body.classList.remove('is-dragging-glass');
     }
 });
+
+
+// Releasing glass (Touch)
+window.addEventListener("touchend", () => {
+    if (isMagGlassDragging) {
+        isMagGlassDragging = false;
+        document.body.classList.remove('is-dragging-glass');
+    }
+});
+
 
 // Updating zoom when window resized
 window.addEventListener("resize", () => {
@@ -1040,13 +1253,13 @@ requestAnimationFrame(animateMagnifier);
 const zoomLevel = 2.5;
 function updateStaticZoom() {
     // Calculating dimensions based on window size for consistent ui size
-    const vh = window.innerHeight / 100;
+    const magRect = magContainer.getBoundingClientRect();
+    const vh = magRect.height / 80;
     const containerWidth = 36.75 * vh;
     const containerHeight = 80 * vh;
 
     // Calculating lens center
-    const lensRadius = 32 * vh / 2;
-    const magRect = magContainer.getBoundingClientRect();
+    const lensRadius = 16 * vh;
     const lensScreenX = magRect.left + (containerWidth * 0.05) + lensRadius;
     const lensScreenY = magRect.top + (containerHeight * 0.05) + lensRadius;
 
@@ -1081,5 +1294,4 @@ function updateStaticZoom() {
             lensEffect.style.backgroundPosition = `${bgX}px ${bgY}px`;
         }
     });
-
 }

@@ -1,10 +1,17 @@
+html {
+    background-color: black;
+    overflow-x: hidden;
+    width: 100%;
+}
+
 body {
     background-image: url("../assets/b-background.png");
     background-size: 100% auto;
     background-repeat: repeat-y;
-    height: 100vh;
-    padding: 0;
+    width: 100%;
+    min-height: 100vh;
     margin: 0;
+    padding: 0;
     overflow-x: hidden;
     cursor: url("../assets/cursor-default.png") 32 24, default;
     scroll-behavior: auto !important;

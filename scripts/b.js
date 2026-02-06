@@ -9,9 +9,14 @@
 
 console.log("js loaded");
 
-let localData = JSON.parse(localStorage.getItem('localData'));
+let settings = JSON.parse(localStorage.getItem('settings'));
 // 0-8 individual boxes     9 big box      10 safe
-//localData.b = [true, true, true, true, true, true, true, true, true, true, false]; saveData();
+//settings.b = [true, true, true, true, true, true, true, true, true, true, false]; saveData();
+
+// Local storage old format data fix 
+if (!settings || !settings.sound || !settings.b) {
+    window.location.href = "https://blueprintle.org/";
+}
 
 let isFinal = checkFinalBox();
 const boxesColorMatrix = [["red", "orange", "yellow"], ["green", "blue", "purple"], ["pink", "white", "black"]];
@@ -104,10 +109,10 @@ let safeInput = "";
 // Playing music once page is interacted with
 let music;
 let musicTimeout;
-let track = localData.b[10] ? "the-baron-of-mount-holly" : localData.b[9] ? "in-the-dim" : "dark-waters";
+let track = settings.b[10] ? "the-baron-of-mount-holly" : settings.b[9] ? "in-the-dim" : "dark-waters";
 document.addEventListener("click", () => {playMusic(track)}, {once: true});
 function playMusic() {
-    if (!localData.playsound) return;
+    if (!settings.sound) return;
 
     clearTimeout(musicTimeout);
 
@@ -130,11 +135,11 @@ function playMusic() {
 }
 
 
-if (!localData.b[9]) {
+if (!settings.b[9]) {
     genBoxes();
 } else {
     document.getElementById("safe-container").classList.remove("hidden");
-    if (localData.b[10]) {
+    if (settings.b[10]) {
         document.getElementById("closed-safe-container").classList.add("hidden");
         document.getElementById("open-safe-container").classList.remove("hidden");
     }
@@ -151,7 +156,7 @@ document.querySelectorAll(".safe-button").forEach((button) => {
 
 function safeButtonPressed(text) {
     // Playing sfx
-    if (localData.playsound) {
+    if (settings.sound) {
         numbersSFXlist[Math.floor(Math.random() * numbersSFXlist.length)].play();
     }
 
@@ -163,8 +168,8 @@ function safeButtonPressed(text) {
         
         case "enter":
             if (safeInput === safeCode) {
-                if (localData.playsound) safeOpenSFX.play();
-                localData.b[10] = true;
+                if (settings.sound) safeOpenSFX.play();
+                settings.b[10] = true;
                 saveData();
                 track = "the-baron-of-mount-holly";
                 playMusic();
@@ -251,7 +256,7 @@ function toggleUIContainer(open, container) {
     if (!containerElm || containerElm.classList.contains("hidden") !== open) return;
 
     // Playing sfx
-    if (localData.playsound) {
+    if (settings.sound) {
         openSFXlist[Math.floor(Math.random() * openSFXlist.length)].play();
     }
 
@@ -290,7 +295,7 @@ function changeLetterPage(page) {
     if (page < 0 || page > finalPage) return;
 
     // Playing sfx
-    if (localData.playsound) {
+    if (settings.sound) {
         pageSFXlist[Math.floor(Math.random() * pageSFXlist.length)].play();
     }
 
@@ -319,7 +324,7 @@ function changeLetterPage(page) {
 // Creating mora jai boxes
 function genBoxes() {
     for(let i = 0; i < matrixes.length; i++) {
-        if (localData.b[i]) {
+        if (settings.b[i]) {
             const color = colors[i];
             matrixes[i] = [[color, color, color], [color, color, color], [color, color, color]];
             boxesContainer.innerHTML += `
@@ -392,7 +397,7 @@ function cornerPressed(index) {
     // Turning on corner or resetting
     if (matrixes[box][corner[0]][corner[1]] === color) {
         corners[box][cornerIndex] = true;
-        if (localData.playsound) {
+        if (settings.sound) {
             cornerClickCorrectSFX.currentTime = 0;
             cornerClickCorrectSFX.play();
         } 
@@ -400,7 +405,7 @@ function cornerPressed(index) {
     } else {
         matrixes[box] = structuredClone(baseMatrixes[box]);
         corners[box] = [false, false, false, false];
-        if (localData.playsound) {
+        if (settings.sound) {
             cornerClickWrongSFX.currentTime = 0;
             cornerClickWrongSFX.play();
         }
@@ -414,11 +419,11 @@ function cornerPressed(index) {
     }
     if (allOn) {
         // Saving box solved in local data
-        localData.b[box] = true;
+        settings.b[box] = true;
         saveData();
 
         // Playing sfx
-        if (localData.playsound) boxSolveSFX.play();
+        if (settings.sound) boxSolveSFX.play();
 
         // Replacing box with solid color box without click listeners
         document.getElementById(box.toString()).innerHTML = genCompletedBox(box);
@@ -450,7 +455,7 @@ function tilePressed(index) {
     const col = parseInt(index[2]);
     const color = box === 9 ? boxesColorMatrix[row][col] : matrixes[box][row][col];
 
-    if (localData.playsound) {
+    if (settings.sound) {
         if (box === 9) {
             //slide sfx
         }
@@ -490,7 +495,7 @@ function updateColors(box) {
         }
     }
 
-    if (localData.b[box]) {
+    if (settings.b[box]) {
         updateCorners(box, true);
     } else {
         updateCorners(box);
@@ -539,7 +544,7 @@ function addBoxListeners() {
 
     // Showing variation note
     boxesContainer.insertAdjacentHTML('beforeend', `<img class="variation-note" src=../assets/variation-note.png>`);
-    if (localData.playsound) {
+    if (settings.sound) {
         openSFXlist[Math.floor(Math.random() * openSFXlist.length)].play();
     }
 
@@ -556,11 +561,11 @@ function addBoxListeners() {
                         // Checking if final box was solved
                         if (boxesColorMatrix[0][0] === "black" && boxesColorMatrix[0][2] === "black" && boxesColorMatrix[2][0] === "black" && boxesColorMatrix[2][2] === "black") {
                             // Saving solve to local data
-                            localData.b[9] = true;
+                            settings.b[9] = true;
                             saveData();
 
                             // Playing sfx
-                            if (localData.playsound) setTimeout(() => {boxSolveSFX.play()}, 1000);
+                            if (settings.sound) setTimeout(() => {boxSolveSFX.play()}, 1000);
 
                             //Removing boxes and displaying safe
                             setTimeout(() => {
@@ -578,7 +583,7 @@ function addBoxListeners() {
 
 
 function checkFinalBox() {
-    return localData.b[0] && localData.b[1] && localData.b[2] && localData.b[3] && localData.b[4] && localData.b[5] && localData.b[6] && localData.b[7] && localData.b[8];
+    return settings.b[0] && settings.b[1] && settings.b[2] && settings.b[3] && settings.b[4] && settings.b[5] && settings.b[6] && settings.b[7] && settings.b[8];
 }
 
 function checkFinalSolved() {
@@ -731,7 +736,7 @@ function black(matrix, row) {
 
 // Saving local data
 function saveData() {
-    localStorage.setItem('localData', JSON.stringify(localData));
+    localStorage.setItem('settings', JSON.stringify(settings));
 }
 
 

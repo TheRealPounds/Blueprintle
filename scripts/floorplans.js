@@ -106,7 +106,7 @@ export const floorplans = [
     {"name": "furnace", "displayName": "FURNACE", "cost": 0, "types": ["Red Room", "Dead End"], "rarity": 4, "entrances": 1},
     {"name": "dovecote", "displayName": "DOVECOTE", "cost": 0, "types": ["Blueprint", "Addition"], "rarity": 3, "entrances": 2},
     {"name": "thekennel", "displayName": "THE KENNEL", "cost": 0, "types": ["Blueprint", "Addition"], "rarity": 2, "entrances": 2},
-    {"name": "clocktower", "displayName": "CLOCKTOWER", "cost": 1, "types": ["Tomorrow", "Blueprint", "Dead End", "Addition"], "rarity": 3, "entrances": 1},
+    {"name": "clocktower", "displayName": "CLOCK TOWER", "cost": 1, "types": ["Tomorrow", "Blueprint", "Dead End", "Addition"], "rarity": 3, "entrances": 1},
     {"name": "classroom", "displayName": "CLASSROOM", "cost": 1, "types": ["Drafting", "Blueprint", "Addition"], "rarity": 3, "entrances": 2},
     {"name": "solarium", "displayName": "SOLARIUM", "cost": 1, "types": ["Green Room", "Dead End", "Addition"], "rarity": 2, "entrances": 1},
     {"name": "dormitory", "displayName": "DORMITORY", "cost": 0, "types": ["Entry", "Bedroom", "Dead End", "Addition"], "rarity": 2, "entrances": 1},
