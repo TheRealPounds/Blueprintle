@@ -164,7 +164,6 @@ if (localData.b) {
 }
 
 function updateSettingsSwitches() {
-    console.log(settings);
     if (endlessMode) document.getElementById("endless-button").classList.add("active");
     settings.sound ? document.getElementById("sound-setting").classList.add("active") : document.getElementById("sound-setting").classList.remove("active");
     settings.hints ? document.getElementById("hints-setting").classList.add("active") : document.getElementById("hints-setting").classList.remove("active");
@@ -1118,7 +1117,6 @@ function initEnding() {
         if (copiedTimer) {
             clearTimeout(copiedTimer);
         }
-        console.log(document.getElementById("copied-text"), document.getElementById("copied-text").classList)
         document.getElementById("copied-text").classList.remove("hidden");
         copiedTimer = setTimeout(() => {
             document.getElementById("copied-text").classList.add("hidden");
@@ -1294,4 +1292,5 @@ function updateStaticZoom() {
             lensEffect.style.backgroundPosition = `${bgX}px ${bgY}px`;
         }
     });
+
 }
