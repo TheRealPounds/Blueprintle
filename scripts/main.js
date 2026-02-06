@@ -104,7 +104,7 @@ const dateOverrides = {
 };
 const hashGenerator = mulberry32(daysSinceLaunch + 12345);
 let correctFloorplan;
-if (debugFloorplan) {
+if (debugFloorplan && debug) {
     correctFloorplan = floorplans.find(fp => fp.name === debugFloorplan);
 } else {
     if (endlessMode) {
@@ -1294,3 +1294,4 @@ function updateStaticZoom() {
     });
 
 }
+
