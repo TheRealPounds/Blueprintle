@@ -185,7 +185,7 @@ if (localData.lastDayPlayed != daysSinceLaunch) {
     saveData();
 }
 
-let shareString = `Blueprintle${settings.b[10] ? "👑" : ""} - Day ${daysSinceLaunch === 1 ? "One" : daysSinceLaunch}\n💎 🅰️ 🅱️ 🔴 🚪\n`;
+let shareString = `Blueprintle${settings.b[10] ? "👑" : ""} - ${endlessMode ? "Endless Mode" : `Day ${daysSinceLaunch === 1 ? "One" : daysSinceLaunch}`}\n💎 🅰️ 🅱️ 🔴 🚪\n`;
 
 // Adding your guesses from today
 if (!endlessMode) {
@@ -1292,6 +1292,4 @@ function updateStaticZoom() {
             lensEffect.style.backgroundPosition = `${bgX}px ${bgY}px`;
         }
     });
-
 }
-
