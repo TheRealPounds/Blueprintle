@@ -1,0 +1,1000 @@
+@font-face {
+    font-family: 'Paramore';
+    src: url("../assets/fonts/ParamoreSelfTitled.otf");
+}
+
+@font-face {
+    font-family: 'Formosa';
+    src: url("../assets/fonts/Formosa.otf");
+}
+
+@font-face {
+    font-family: 'Bolognaise';
+    src: url("../assets/fonts/Bolognaise.ttf");
+}
+
+@font-face {
+    font-family: 'Schoolbook';
+    src: url("../assets/fonts/SchoolbookBold.ttf");
+}
+
+html {
+    background-color: #0F2A48;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+body {
+    background-image: url("../assets/Background.png");
+    background-size: 100% auto;
+    background-repeat: repeat-y;
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    cursor: url("../assets/cursor-default.png") 32 24, default;
+    scroll-behavior: auto !important;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.mobile-warning {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 8vw;
+    font-family: 'Schoolbook';
+    text-align: center;
+    z-index: 999;
+}
+
+.vertical-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.main-container {
+    padding-bottom: 5vh;
+}
+
+.logo-container {
+    display: flex;
+    align-items: top;
+    justify-content: center;
+    width: clamp(5vw, 800px, 50vw); 
+}
+
+.logo {
+    width: 100%; 
+    height: auto;
+}
+
+.crown {
+    height: 100%; 
+    width: auto;
+    flex-shrink: 0;
+    max-width: 15%;
+}
+
+.mode-logo {
+    height: 5vh;
+    width: auto;
+}
+
+.cursed {
+    filter: hue-rotate(145deg);
+}
+
+.clickable {
+    transition: transform 0.1s;
+}
+
+.clickable:hover {
+    cursor: url("../assets/cursor-pointer.png") 32 21, pointer;
+    transform: scale(1.05);
+}
+
+.disabled:hover {
+    cursor: url("../assets/cursor-faint.png") 32 24, default ;
+}
+
+.floorplan-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.floorplan {
+    width: clamp(100px, 256px, 15vw);
+    height: auto;
+}
+
+.down-arrow {
+    width: clamp(50px, 100px, 10vw);
+    height: auto;
+    display: block;
+    margin: 0px auto;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.info-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    align-items: start;
+    gap: 5px;
+    width: clamp(175px, 384px, 30vw);
+    height: clamp(100px, 256px, 15vw);
+    font-family: "Archivo Black", sans-serif ;
+    color: white;
+    font-size: clamp(14px, 24px, 2vw);
+}
+
+.colon {
+    margin-left: 5px;
+    margin-right: 8px;
+    font-family: Arial, Helvetica, sans-serif
+}
+
+.gem {
+    height: 1.5em;
+    width: auto;
+    vertical-align: bottom;
+    margin-right: 5px;
+}
+
+.info-text {
+    font-family: Formosa;
+    font-size: clamp(4px, 30px, 2vw);
+    line-height: 1;
+}
+
+.type-icon, .answer-icon {
+    height: 1em;
+    width: auto;
+    margin-right: 5px;
+}
+
+.rarity-dot {
+    height: clamp(5px, 24px, 0.7vw);
+    width: auto;
+    vertical-align: middle;
+}
+
+.archived-stat {
+    height: 1em;
+    width: auto;
+    vertical-align: bottom;
+}
+
+.hint-text {
+    margin-top: 2vh;
+    color: white;
+    font-family: "Archivo Black", sans-serif;
+    font-size: clamp(20px, 36px, 3vw);
+}
+
+.hint-word {
+    margin-right: 3vh;
+}
+
+.draftsheet-container {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    translate: 0 -100%;
+    transition: translate 1s ease-in-out;
+    z-index: 10;
+}
+
+.draftsheet-container.active {
+    translate: 0 0;
+}
+
+.draftsheet {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: auto;
+}
+
+.draft-select-text {
+    position: fixed;
+    top: -10vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30vw;
+    height: auto;
+    transition: top 0.7s ease-out;
+    z-index: 1;
+}
+
+.draft-select-text.active {
+    top: 10vh;
+}
+
+.measure-line-container {
+    position: fixed;
+    top: 15vh;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    z-index: 1;
+}
+
+.measure-line {
+    background-color: white;
+    width: 0;
+    height: 2px;
+    margin: 0;
+    transition: width 0.5s ease-out;
+}
+
+.measure-line.active {
+    width: 50vw;
+}
+
+.choose-timer {
+    position: fixed;
+    top: 3%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: "Schoolbook";
+    font-size: 5vh;
+    color: white;
+}
+
+.gallery-viewport {
+    position: fixed;
+    top: 11vw;
+    left: 0;
+    width: 100vw;
+    height: 35vh;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory; 
+    transform: translateX(100vw); 
+    transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: 1;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.gallery-viewport.active {
+    transform: translateX(0);
+}
+
+.gallery-viewport.active-drag {
+    cursor: url("../assets/cursor-grab.png") 32 24, grabbing;
+    scroll-snap-type: none !important;
+    scroll-behavior: auto !important;
+}
+
+.gallery-viewport.active-drag .gallery-floorplan {
+    pointer-events: none;
+}
+
+.gallery-viewport::-webkit-scrollbar {
+    display: none;
+}
+
+.gallery-viewport:focus {
+    outline: none;
+}
+
+.gallery-track {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: fit-content;
+    min-width: 100%;
+    justify-content: center;
+    padding: 0 40px; 
+    box-sizing: border-box;
+    gap: 2vw;
+    height: 100%;
+}
+
+.gallery-item {
+    width: 14vw;
+    height: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.cannot-draft {
+    position: fixed;
+    top: 55%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30vw;
+    height: auto;
+    z-index: 10;
+}
+
+.filter-container {
+    position: fixed;
+    bottom: -25vh;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: bottom 0.7s ease-out;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    z-index: 1;
+}
+
+.filter-container.active {
+    bottom: 15vh;
+}
+
+.search-container {
+    display: inline-block;
+    position: relative; 
+}
+
+.search-background {
+    width: 50vw;
+    height: auto;
+    display: block;
+}
+
+.search-input {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 70%;
+    height: auto;
+    padding: 10px 20px;
+    font-size: 2vw;
+    border: none;
+    box-sizing: border-box;
+    font-family: "Archivo Black", sans-serif;
+    background: transparent;
+    color: white;
+    outline: none;
+    text-transform: uppercase;
+}
+
+.search-input::placeholder {
+    text-transform: lowercase;
+    font-family: formosa;
+    color: rgb(168, 168, 168);
+}
+
+.search-input:hover {
+    cursor: url("../assets/cursor-text.png") 31 34, text;
+}
+
+.color-filters-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 1vw;
+    gap: 0.5vw;
+    position: relative;
+    padding-top: 2.5vw;
+}
+
+.color-filter-title {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: "Archivo Black", sans-serif;
+    font-size: 1.2vw;
+    color: white;
+}
+
+.color-filter-buttons-container {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5vw;
+}
+
+.color-filter-button {
+    background: none;
+    border: none;
+}
+
+.color-filter-icon {
+    width: 2vw;
+    height: auto;
+}
+
+.floorplans-container {
+    width: 100%;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.floorplan-entry {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: auto; 
+    overflow: hidden; 
+    transform: translateX(100vw);
+    transition: 
+        height 1.2s ease-in-out, 
+        transform 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.floorplan-entry.active {
+    transform: translateX(0);
+    overflow: visible;
+}
+
+.ui-container {
+    position: fixed;
+    z-index: 20;
+}
+
+.steps-container {
+    position: fixed;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    top: 2vh;
+    left: 1vw;
+}
+
+.steps-icon {
+    width: 8vh;
+    height: auto;
+    vertical-align: middle;
+}
+
+.steps-counter {
+    font-family: "Paramore";
+    color: white;
+    font-size: 12vh;
+    line-height: 0.1;
+}
+
+.curse-steps-container {
+    position: fixed;
+    top: 10vh;
+    left: -10vw;
+    transition: left 1s ease-in-out;
+}
+
+.curse-steps-container.active {
+    left: 2vw;
+}
+
+.curse-monk {
+    height: 8vh;
+}
+
+.curse-steps-inner-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.curse-steps-icon {
+    width: 4vh;
+    height: auto;
+    vertical-align: middle;
+    padding-bottom: 1vh;
+}
+
+.curse-steps-num {
+    font-family: "Paramore";
+    color: #C20F00;
+    font-size: 10vh;
+    line-height: 0.1;
+}
+
+.letter-container {
+    position: fixed;
+    width: 100vw;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+}
+
+.intro-letter {
+    height: 100dvh;
+    width: auto;
+}
+
+.stamp {
+    position: absolute;
+    top: 29.8%;
+    left: 69.7%;
+    height: 10%;
+    width: auto;
+}
+
+.new-clue-text {
+    position: absolute;
+    bottom: 6.2%;
+    left: 50.3%;
+    height: 2.8%;
+    width: auto;
+}
+
+.dare1 {
+    position: absolute;
+    top: 30%;
+    height: 20%;
+    width: auto;
+}
+
+.dare2 {
+    position: absolute;
+    top: 53%;
+    height: 20%;
+    width: auto;
+}
+
+.close-button {
+    position: fixed;
+    top: 2vh;
+    right: 10vw;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    z-index: 200;
+}
+
+.close-icon {
+    width: 4vw;
+    height: auto;
+}
+
+.page-buttons-container {
+    position: fixed;
+    bottom: 2vh;
+    left: 2vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.letter-page-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: 0;
+    opacity: 1;
+    transition: opacity 1s;
+}
+
+.letter-page-button.disabled {
+    opacity: 0;
+    cursor: url("../assets/cursor-default.png") 32 24, default;
+}
+
+.letter-page-icon {
+    height: 8vh;
+    width: auto;
+}
+
+.letter-page-text {
+    font-family: 'Schoolbook';
+    font-size: 1.5vw;
+    color: white;
+    padding: 0 1vh;
+}
+
+.extra-buttons-container {
+    position: fixed;
+    bottom: 3vh;
+    right: 3vh;
+    gap: 1vh;
+    z-index: 100;
+}
+
+.extra-button {
+    background: none;
+    border: none;
+    margin: 0;
+    outline: 0;
+}
+
+.extra-icon {
+    height: auto;
+    width: 4vw;
+}
+
+.kofi-container, .curse-note-container {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+}
+
+.curse-note {
+    height: 60%;
+    width: auto;
+}
+
+.kofi-note {
+    height: 50%;
+    width: auto;
+}
+
+.kofi-link {
+    position: fixed;
+    bottom: 39.7vh;
+    rotate: 1deg;
+    font-size: 3vh;
+    opacity: 0;
+}
+
+.settings-container {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 30;
+}
+
+.settings-box {
+    height: 90vh;
+    width: auto;
+}
+
+.switch-button {
+    position: fixed;
+    background: none;
+    border: none;
+    padding: 0;
+    height: 5%;
+}
+
+.endless-button {
+    height: 8%;
+    bottom: 64.5%;
+    left: 55%;
+}
+
+.endless-button.active {
+    left: 43%;
+}
+
+.switches-container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 5.6vh;
+    top: 55%; 
+    left: 29%;
+}
+
+.switches-container .switch-button {
+    position: relative; 
+    height: 4vh; 
+    cursor: pointer;
+}
+
+.switch {
+    height: 100%;
+    width: auto;
+}
+
+.switch.active {
+    transform: scale(-1, 1);
+}
+
+.switch:hover {
+    cursor: url("../assets/cursor-pointer.png") 32 21, pointer;
+}
+
+.mode-container {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    gap: 5%;
+    z-index: 30;
+}
+
+.mode-button {
+    background: none;
+    border: none;
+    padding: 0;
+    width: 50%;
+}
+
+.mode-icon {
+    width: 100%;
+    height: auto;
+}
+
+.ending-container {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    z-index: 150;
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.ending-title-container {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.day-text {
+    position: fixed;
+    top: 4vh;
+    left: 4vw;
+    font-family: 'Bolognaise';
+    font-size: 8vh;
+    color: #737D84;
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.ending-center-container {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.today-floorplan-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.today-floorplan-text {
+    color: #878787;
+    font-family: 'Schoolbook';
+    font-size: 4vh;
+    padding-bottom: 2vh;
+}
+
+.today-floorplan {
+    width: 50vh;
+    height: auto;
+}
+
+.ending-stats-container {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    padding-left: 10vh;
+    
+}
+
+.ending-result-container  {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.ending-result-text {
+    font-family: 'Bolognaise';
+    font-weight: bold;
+    font-size: 10vh;
+}
+
+.i-have-too-many-containers {
+    width: 100%;
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.ending-div-line {
+    height: 0.2vh;
+    width: 120%;
+    transform: translateX(-10%);
+    margin: 1vh 0;
+    background-color: #878787;
+    border-radius: 50%;
+}
+
+.ending-stat-text {
+    display: flex;
+    align-items: center;
+    color: white;
+    font-family: 'Schoolbook';
+    font-size: 3vh;
+    margin-bottom: 2vh;
+}
+
+.ending-special-text {
+    color: #C20F00;
+    font-family: 'Bolognaise';
+    margin-left: 2vh;
+    font-size: 8vh;
+    line-height: 0.1;
+}
+
+.ending-stat-num {
+    font-family: 'Paramore';
+    font-size: 8vh;
+    color: #5DA3C3;
+    margin-left: 3vh;
+    line-height: 0.1;
+    transform: translateY(0.5vh);
+}
+
+.timer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10vh;
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.timer {
+    color: white;
+    font-family: 'Schoolbook';
+    font-size: 8vh;
+}
+
+.copied-text {
+    position: fixed;
+    bottom: 12%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.ending-buttons-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    position: fixed;
+    width: 100%;
+    bottom: 5vh;
+    gap: 2vh;
+}
+
+.ending-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ending-button-icon {
+    height: 7vh;
+    width: auto;
+}
+
+.zoomable {
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+
+.magnifier-container {
+    position: fixed;
+    height: 80vh;
+    width: 36.75vh;
+    pointer-events: none; 
+    z-index: 50;
+    user-select: none;
+}
+
+.hitbox {
+    position: absolute;
+    pointer-events: auto;
+    cursor: url("../assets/cursor-grab.png") 32 24, grab;
+    z-index: 10;
+}
+
+.circle-hitbox {
+    width: 35vh;
+    height: 35vh;
+    border-radius: 50%;
+    left: 2.5%;
+    top: 2.5%;
+}
+
+.handle-hitbox {
+    width: 21%;
+    height: 55.5%;
+    left: 31%;
+    top: 45%;
+    transform: rotate(14deg);
+    transform-origin: top center;
+}
+
+.glass-image {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+.lens-effect {
+    position: absolute;
+    left: 5%;
+    top: 5%;
+    width: 32vh;
+    height: 32vh;
+    border-radius: 50%;
+    z-index: 1;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+.lens-effect::after {
+    content: '';
+    display: block;
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(93, 163, 195, 0.25); 
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(0.5px);
+}
+
+body.is-dragging-glass {
+    cursor: url("../assets/cursor-grabbing.png") 32 24, grabbing !important;
+}
+
+body.is-dragging-glass .clickable, 
+body.is-dragging-glass button,
+body.is-dragging-glass a {
+    pointer-events: none !important;
+}
+
+body.is-dragging-glass .hitbox {
+    cursor: url("../assets/cursor-grabbing.png") 32 24, grabbing !important;
+}

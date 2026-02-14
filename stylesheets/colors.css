@@ -42,6 +42,10 @@
     color: #8C8C8C;
 }
 
+.rocket {
+    color: #9B9B9B;
+}
+
 .commonplace {
     color: #796569;
 }
@@ -68,4 +72,8 @@
 
 .wrong {
     color: #787C7E;
+}
+
+.archived {
+    color: #9c1c18;
 }
