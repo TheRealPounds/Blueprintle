@@ -14,7 +14,7 @@ const url = new URL(window.location.href);
 const urlParams = new URLSearchParams(document.location.search);
 if ((urlParams.get("color") && urlParams.get("color").toLowerCase() === "black") || (urlParams.get("Color") && urlParams.get("Color").toLowerCase() === "black") || (urlParams.get("COLOR") && urlParams.get("COLOR").toLowerCase() === "black")) window.location.href = "../blackprintle";
 const debug = urlParams.get("debug") === "true" ? true : false;
-const endless = true || urlParams.get("endlessMode") === "true" ? true : false || urlParams.get("endless") === "true" ? true : false;
+const endless = debug || urlParams.get("endlessMode") === "true" ? true : false || urlParams.get("endless") === "true" ? true : false;
 const mode = urlParams.get("mode") === "dare" ? "dare" : urlParams.get("mode") === "curse" ? "curse" : "bequest";
 const debugDay = urlParams.get("day");
 const debugFloorplan = urlParams.get("floorplan");
@@ -60,6 +60,8 @@ let dare2;
 let dare1State;
 let dare2State;
 let prevFloorplan;
+const answersList = [];
+const hasIcon = ["Drafting", "Entry", "Mechanical", "Puzzle", "Spread", "Tomorrow", "Rocket"];
 
 const itemWidth = window.innerWidth * 0.16;
 let isScrolling = false;
@@ -195,6 +197,7 @@ if (oldData) {
     localStorage.removeItem('localData');
 }
 
+// Updating stuff from settings
 function updateSettingsSwitches() {
     if (endless) document.getElementById("endless-button").classList.add("active");
     settings.sound ? document.getElementById("sound-setting").classList.add("active") : document.getElementById("sound-setting").classList.remove("active");
@@ -204,6 +207,13 @@ function updateSettingsSwitches() {
 updateSettingsSwitches();
 
 sound = settings.sound;
+
+// Endless mode play again button click
+if (endless) {
+    document.getElementById("ending-play-again-button").classList.remove("hidden");
+    document.getElementById("ending-play-again-button").addEventListener("click", () => {location.reload()});
+}
+
 
 // Initializing based on local data
 if (localData.lastDayPlayed != daysSinceLaunch) {
@@ -271,36 +281,47 @@ if (mode === "bequest") {
 
 
 // Initializing dare mode
-const yesterdayFloorplan = floorplans[Math.floor(mulberry32(daysSinceLaunch + 69419)() * floorplans.length)].name;
+const yesterdayFloorplans = [
+    floorplans[Math.floor(mulberry32(daysSinceLaunch + 12344)() * floorplans.length)].name,
+    floorplans[Math.floor(mulberry32(daysSinceLaunch + 69419)() * floorplans.length)].name,
+    floorplans[Math.floor(mulberry32(daysSinceLaunch + 123455)() * floorplans.length)].name
+];
 const dareHashGenerator = mulberry32(endless ? Math.random() * 1000000 : daysSinceLaunch);
 const dares = [
-    {"name": "archived", "phrase": "win with 1 random hidden stat", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["allGrey"]},
-    {"name": "b2bColors", "phrase": "not draft 2 rooms with the same color back to back", "startState": true, "incompatibleRooms": ["aquarium", "electriceelaquraium"], "incompatibleDares": []},
-    {"name": "allGrey", "phrase": "draft a room with all grey stats", "startState": false, "incompatibleRooms": ["thefoundation", "garage", "musicroom", "lockerroom", "ballroom", "rumpusroom", "drawingroom", "chamberofmirrors", "thepool", "draftingstudio", "boilerroom", "security", "laboratory", "observatory", "conferenceroom", "aquarium", "electriceelaquarium", "servantsquarters", "eastwinghall", "greathall", "cloisterofdraxus", "secretgarden", "locksmith", "laundryroom", "bookshop", "mounthollygiftshop", "archives", "thekennel", "clocktower", "classroom", "planetarium", "mechanarium", "treasuretrove", "conservatory", "closedexhibit"], "incompatibleDares": ["archived"]},
-    {"name": "singleBedroom", "phrase": "not draft a second bedroom", "startState": true, "incompatibleRooms": [], "incompatibleDares": []},
-    {"name": "allRarities", "phrase": "draft a commonplace, standard, unusual and rare room", "startState": false, "incompatibleRooms": [], "incompatibleDares": []},
-    {"name": "hint", "phrase": "get a hint before winning", "startState": false, "incompatibleRooms": [], "incompatibleDares": ["noHints"]},
-    {"name": "yesterdayRoom", "phrase": "not draft yesterday's chosen room", "startState": true, "incompatibleRooms": [yesterdayFloorplan], "incompatibleDares": [yesterdayFloorplan === "lavatory" ? "lavatoryWait" : "", yesterdayFloorplan === "entrancehall" ? "startEntrance" : ""]},
-    {"name": "exactRedRooms", "phrase": "draft exactly 2 red rooms", "startState": false, "incompatibleRooms": [], "incompatibleDares": []},
-    {"name": "noSafe", "phrase": "not draft a room with a safe in it", "startState": true, "incompatibleRooms": ["boudoir", "office", "drawingroom", "study", "draftingstudio", "shelter"], "incompatibleDares": []},
-    {"name": "antechamberLever", "phrase": "draft a room with an antechamber lever", "startState": false, "incompatibleRooms": [], "incompatibleDares": []},
-    {"name": "noUpgrades", "phrase": "not draft upgraded rooms", "startState": true, "incompatibleRooms": ["sparebedroom", "sparegreenroom", "sparepatio", "sparehall", "sparesecretpassage", "funeralparlor", "breakroom", "poolhall", "emptycloset", "readingnook", "questbedroom", "nursesstation", "indoornursery", "hallway2", "corriyard", "cloisteroforinda", "cloisterofdraxus"], "incompatibleDares": []},
-    {"name": "lavatoryWait", "phrase": "draft lavatory and wait 30 seconds before continuing", "startState": false, "incompatibleRooms": ["lavatory"], "incompatibleDares": [yesterdayFloorplan === "lavatory" ? "yesterdayRoom" : ""]},
-    {"name": "dupeFirstLetters", "phrase": "not draft 2 rooms with the same first letter more than once", "startState": true, "incompatibleRooms": [], "incompatibleDares": []},
-    {"name": "noSingleType", "phrase": "only draft rooms with more than 1 type", "startState": true, "incompatibleRooms": ["spareroom", "rotunda", "nook", "den", "trophyroom", "pantry", "rumpusroom", "diningroom", "observatory", "boudoir", "hallway", "westwinghall", "eastwinghall", "corridor", "passageway", "foyer", "greathall", "patio", "courtyard", "cloister", "veranda", "commisarry", "kitchen", "showroom", "bookshop", "archives", "darkroom", "weightroom"], "incompatibleDares": []},
-    {"name": "filterClear", "phrase": "not clear any search filters", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["onlySearch"]},
-    {"name": "deadEndEquals", "phrase": "have an equal number of dead ends and not dead ends by the end", "startState": true, "incompatibleRooms": [], "incompatibleDares": []},
-    {"name": "singleCostDiff", "phrase": "only draft rooms that are no more than one gem difference than the previous", "startState": true, "incompatibleRooms": ["trophyroom", "throneroom", "throneoftheblueprince"], "incompatibleDares": []},
-    {"name": "chooseTimer", "phrase": "choose a room in less than 8 seconds when drafting", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["onlySearch"]},
-    {"name": "noHints", "phrase": "win without any hints", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["hint"]},
-    {"name": "onlySearch", "phrase": "only pick rooms you search by name", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["filterClear", "chooseTimer"]},
-    {"name": "sixColors", "phrase": "draft 6 different colors of rooms before winning without drafting a multi-color room", "startState": false, "incompatibleRooms": ["aquarium", "electriceelaquarium", "corriyard", "thearmory", "maidschamber"], "incompatibleDares": []},
-    {"name": "deadEndQuotes", "phrase": "draft a \"dead end\" (in quotes) room", "startState": false, "incompatibleRooms": [], "incompatibleDares": []},
-    {"name": "startEntrance", "phrase": "start drafting in the entrance hall", "startState": false, "incompatibleRooms": ["entrancehall"], "incompatibleDares": [yesterdayFloorplan === "entrancehall" ? "yesterdayRoom" : ""]},
-    {"name": "curseMode", "phrase": "beat today's curse mode before winning today", "startState": false, "incompatibleRooms": [], "incompatibleDares": []},
-    {"name": "chess", "phrase": "draft at least 3 rooms with different chess pieces before winning", "startState": false, "incompatibleRooms": [], "incompatibleDares": []},
-    {"name": "totalCost", "phrase": "not exceed a sum cost of 8 gems", "startState": true, "incompatibleRooms": ["trophyroom", "throneroom", "throneoftheblueprince"], "incompatibleDares": []},
-];
+    {"name": "archived", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["allGrey", "keepGreen"]},
+    {"name": "b2bColors", "startState": true, "incompatibleRooms": ["aquarium", "electriceelaquraium"], "incompatibleDares": []},
+    {"name": "allGrey", "startState": false, "incompatibleRooms": ["thefoundation", "garage", "musicroom", "lockerroom", "ballroom", "rumpusroom", "drawingroom", "chamberofmirrors", "thepool", "draftingstudio", "boilerroom", "security", "laboratory", "observatory", "conferenceroom", "aquarium", "electriceelaquarium", "servantsquarters", "eastwinghall", "greathall", "cloisterofdraxus", "secretgarden", "locksmith", "laundryroom", "bookshop", "mounthollygiftshop", "archives", "thekennel", "clocktower", "classroom", "planetarium", "mechanarium", "treasuretrove", "conservatory", "closedexhibit"], "incompatibleDares": ["archived", "keepGreen"]},
+    {"name": "singleBedroom", "startState": true, "incompatibleRooms": [], "incompatibleDares": []},
+    {"name": "allRarities", "startState": false, "incompatibleRooms": [], "incompatibleDares": ["limitedRarities"]},
+    {"name": "hint", "startState": false, "incompatibleRooms": [], "incompatibleDares": ["noHints"]},
+    {"name": "yesterdayRooms", "startState": true, "incompatibleRooms": yesterdayFloorplans, "incompatibleDares": [yesterdayFloorplans.includes("lavatory") ? "lavatoryWait" : "", yesterdayFloorplans.includes("entrancehall") ? "startEntrance" : ""]},
+    {"name": "exactRedRooms", "startState": false, "incompatibleRooms": [], "incompatibleDares": []},
+    {"name": "noSafeOrLever", "startState": true, "incompatibleRooms": ["boudoir", "office", "drawingroom", "study", "draftingstudio", "shelter", "secretgarden", "greenhouse", "greenhousesecret", "greathall", "weightroom", "mechanarium", "throneroom", "throneoftheblueprince"], "incompatibleDares": []},
+    {"name": "noUpgrades", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.includes("Upgrade")).map(fp => fp.name), "incompatibleDares": []},
+    {"name": "lavatoryWait", "startState": false, "incompatibleRooms": ["lavatory"], "incompatibleDares": [yesterdayFloorplans.includes("lavatory") ? "yesterdayRooms" : ""]},
+    {"name": "dupeFirstLetters", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["hideHistory"]},
+    {"name": "noSingleType", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.length !== 1).map(fp => fp.name), "incompatibleDares": []},
+    {"name": "filterClear", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["onlySearch"]},
+    {"name": "deadEndEquals", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["hideHistory"]},
+    {"name": "singleCostDiff", "startState": true, "incompatibleRooms": ["trophyroom", "throneroom", "throneoftheblueprince"], "incompatibleDares": []},
+    {"name": "chooseTimer", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["onlySearch"]},
+    {"name": "noHints", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["hint"]},
+    {"name": "onlySearch", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["filterClear", "chooseTimer", "cropped"]},
+    {"name": "sixColors", "startState": false, "incompatibleRooms": ["aquarium", "electriceelaquarium", "corriyard", "thearmory", "maidschamber"], "incompatibleDares": []},
+    {"name": "noTypeIcon", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.some(t => hasIcon.includes(t))).map(fp => fp.name), "incompatibleDares": []},
+    {"name": "startEntrance", "startState": false, "incompatibleRooms": ["entrancehall"], "incompatibleDares": ["randomFirst", yesterdayFloorplans.includes("entrancehall") ? "yesterdayRooms" : ""]},
+    {"name": "curseMode", "startState": false, "incompatibleRooms": [], "incompatibleDares": []},
+    {"name": "chess", "startState": false, "incompatibleRooms": [], "incompatibleDares": []},
+    {"name": "totalCost", "startState": true, "incompatibleRooms": ["trophyroom", "throneroom", "throneoftheblueprince"], "incompatibleDares": []},
+    {"name": "no3Types", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.length >= 3).map(fp => fp.name), "incompatibleDares": []},
+    {"name": "limitedRarities", "startState": true, "incompatibleRooms": ["entrancehall", "antechamber", "room46"], "incompatibleDares": ["allRarities"]},
+    {"name": "hideHistory", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["deadEndEquals", "dupeFirstLetters"]},
+    {"name": "diffEntrances", "startState": true, "incompatibleRooms": [], "incompatibleDares": []},
+    {"name": "noDucts", "startState": true, "incompatibleRooms": ["garage", "boilerroom", "pumproom", "laboratory", "laundryroom", "furnace", "lockerroom", "security", "passageway", "archives","darkroom", "weightroom", "electriceelaquarium"], "incompatibleDares": []},
+    {"name": "keepGreen", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["archived", "allGrey"]},
+    {"name": "randomFirst", "startState": false, "incompatibleRooms": [], "incompatibleDares": ["startEntrance"]},
+    {"name": "cropped", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["onlySearch"]},
+];//{"name": "", "startState": true, "incompatibleRooms": [], "incompatibleDares": []},
 if (mode === "dare") {
     // Changing letter button icon
     document.getElementById("intro-icon").src = "../assets/dare-letter-icon.png";
@@ -317,9 +338,11 @@ if (mode === "dare") {
     dare2State = dare2.startState;
     dare2 = dare2.name;
 
-    // Setting dares in intro letter
+    // Setting dares in intro letter & ending dares note
     document.getElementById("dare1").src = "../assets/dares/" + dare1 + ".png";
     document.getElementById("dare2").src = "../assets/dares/" + dare2 + ".png";
+    document.getElementById("dare1-ending").src = "../assets/dares/" + dare1 + ".png";
+    document.getElementById("dare2-ending").src = "../assets/dares/" + dare2 + ".png";
 }
 
 
@@ -393,12 +416,13 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
     }, 600);
 
     // Populating gallery
-    let galleryHTML = "";
+    let galleryHTML = `<button id="random-floorplan" class="floorplan-button clickable gallery-floorplan"><img class="gallery-item" src="../assets/floorplans/random.png"></button>`;
     let i = 0;
+    const crop = daresCheck("cropped");
     floorplans.forEach(fp => {
         galleryHTML += `
-            <button class="floorplan-button clickable gallery-floorplan" data-index="${i}"><img class="gallery-item" src="../assets/floorplans/${fp.name}.png"></button>
-        `
+            <button class="floorplan-button clickable gallery-floorplan" data-index="${i}"><img class="gallery-item${crop ? " cropped" : ""}" src="../assets/floorplans/${fp.name}.png"></button>
+        `;
         i++;
     });
     document.getElementById("gallery-track").innerHTML = galleryHTML;
@@ -411,7 +435,8 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
                 e.stopPropagation();
                 return;
             }
-            choseFloorplan(floorplans[parseInt(fp.getAttribute("data-index"))].name);
+            const index = fp.getAttribute("data-index");
+            if (index) choseFloorplan(floorplans[parseInt(index)].name);
         });
 
         fp.addEventListener("mouseenter", () => {
@@ -419,6 +444,23 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
                 hoverSFX.play();
             }
         });
+    });
+
+    // Random floorplan functionality
+    document.getElementById("random-floorplan").addEventListener("click", () => {
+        // Random first guest dare
+        if (daresCheck("randomFirst") && currentGuesses.length === 0) {
+            dare1 === "randomFirst" ? dare1State = true : dare2State = true;
+        }
+
+        let roomList = [];
+        document.querySelectorAll(".gallery-floorplan").forEach(fp => {
+            const index = fp.getAttribute("data-index");
+            if (index && !fp.classList.contains("hidden")) roomList.push(floorplans[parseInt(index)].name);
+        });
+        roomList = roomList.filter(fp => !currentGuesses.includes(fp));
+        if (roomList.length === 0) return;
+        choseFloorplan(roomList[Math.floor(Math.random() * roomList.length)]);
     });
 
     // Resetting gallery filter
@@ -452,7 +494,7 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
     }, 1500);
 
     // Choose timer dare
-    if (dare1 === "chooseTimer" || dare2 === "chooseTimer") {
+    if (daresCheck("chooseTimer")) {
         const chooseTimer = document.getElementById("choose-timer");
         chooseTimer.classList.add("hidden");
 
@@ -620,19 +662,24 @@ document.addEventListener("keyup", (event) => {
 
 
 // Gallery search filter
-document.getElementById("search-input").addEventListener("input", function() {
-    const name = this.value ? this.value.toLowerCase().replaceAll(' ','') : "";
+if (daresCheck("cropped")) {
+    document.getElementById("search-input").classList.add("hidden");
+} else {
+    document.getElementById("search-input").addEventListener("input", function() {
+        const name = this.value ? this.value.toLowerCase().replaceAll(' ','') : "";
 
-    // No filter clear dare
-    if ((dare1 === "filterClear" || dare2 === "filterClear") && name.indexOf(searchFilter) !== 0) {
-        hideDraftSelect();
-        disableGuessing();
-        initEnding("DEFEAT");
-    }
+        // No filter clear dare
+        if (daresCheck("filterClear") && name.indexOf(searchFilter) !== 0) {
+            dare1 === "filterClear" ? dare1State = false : dare2State = false;
+            hideDraftSelect();
+            disableGuessing();
+            initEnding("DEFEAT");
+        }
 
-    searchFilter = name;
-    filterGallery(name, colorFilter);
-});
+        searchFilter = name;
+        filterGallery(name, colorFilter);
+    });
+}
 
 
 // Gallery color filter
@@ -641,7 +688,8 @@ document.querySelectorAll(".color-filter-button").forEach((button) => {
         let color = button.getAttribute("data-color");
 
         // No filter clear dare
-        if ((dare1 === "filterClear" || dare2 === "filterClear") && colorFilter !== "none") {
+        if (daresCheck("filterClear") && colorFilter !== "none") {
+            dare1 === "filterClear" ? dare1State = false : dare2State = false;
             hideDraftSelect();
             disableGuessing();
             initEnding("DEFEAT");
@@ -664,9 +712,11 @@ document.querySelectorAll(".color-filter-button").forEach((button) => {
 function filterGallery(name, color) {
     shownItems = 0;
     document.querySelectorAll(".gallery-floorplan").forEach(fp => {
-        const floorplan = floorplans[parseInt(fp.getAttribute("data-index"))];
+        const index = fp.getAttribute("data-index");
+        if (!index) return;
+        const floorplan = floorplans[parseInt(index)];
         // Only search dare
-        if (dare1 === "onlySearch" || dare2 === "onlySearch") {
+        if (daresCheck("onlySearch")) {
             if (floorplan.displayName.toLowerCase().replaceAll(' ', '') === name) {
                 shownItems++;
                 fp.classList.remove("hidden");
@@ -684,6 +734,13 @@ function filterGallery(name, color) {
             }
         }
     });
+
+    // Showing or hiding random floorplan button
+    if (shownItems > 1) {
+        document.getElementById("random-floorplan").classList.remove("hidden");
+    } else {
+        document.getElementById("random-floorplan").classList.add("hidden");
+    }
 
     // Creating rocket silo easter egg option if searched for directly
     if (name === "rocketsilo" && mode !== "dare") {
@@ -728,10 +785,10 @@ document.getElementById("intro-letter").addEventListener("click", () => {
 
 // UI close button
 document.querySelectorAll(".close-button").forEach((button) => {
-    if ((dare1 === "filterClear" || dare2 === "filterClear" || dare1 === "chooseTimer" || dare2 === "chooseTimer") && !button.id) button.classList.add("hidden");
+    if ((daresCheck("filterClear") ||daresCheck("chooseTimer")) && !button.id) button.classList.add("hidden");
     button.addEventListener("click", () => {
+        if (document.getElementById("close-button").classList.contains("hidden")) hideDraftSelect();
         toggleUIContainer(false);
-        if (dare1 !== "filterClear" && dare2 !== "filterClear" && dare1 !== "chooseTimer" && dare2 !== "chooseTimer") hideDraftSelect();
     });
 });
 
@@ -739,8 +796,8 @@ document.querySelectorAll(".close-button").forEach((button) => {
 // Escape key to close ui
 document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
+        if (!daresCheck("filterClear") && !daresCheck("chooseTimer") && document.getElementById("close-button").classList.contains("hidden")) hideDraftSelect();
         toggleUIContainer(false);
-        if (dare1 !== "filterClear" && dare2 !== "filterClear" && dare1 !== "chooseTimer" && dare2 !== "chooseTimer") hideDraftSelect();
     }
 });
 
@@ -885,7 +942,6 @@ function choseFloorplan(name) {
     }
 
     // Saving guess data
-    currentGuesses.push(name);
     if (!(puzzleMode || endless)) {
         localData.totalGuesses++;
         localData.guesses.push(name);
@@ -912,6 +968,15 @@ function choseFloorplan(name) {
         saveData();
     }
 
+    // Hide draft history dare
+    if (daresCheck("hideHistory") && document.querySelector(".floorplan-entry")) document.querySelector(".floorplan-entry").remove();
+
+    // Random floorplan dare
+    if (daresCheck("randomFirst") && !((dare1 === "randomFirst" ? dare1State : dare2State))) {
+        disableGuessing();
+        initEnding("DEFEAT");
+    }
+
     drawFloorplan(name);
 };
 
@@ -920,6 +985,7 @@ function choseFloorplan(name) {
 function drawFloorplan(name) {
     let floorplan;
     let answers = {"cost": "wrong", "type": "wrong", "absent": "wrong", "excess": "wrong", "rarity": "wrong", "entrances": "wrong"};
+    currentGuesses.push(name);
     if (!puzzleMode) {
         // Incrementing steps
         if (mode !== "curse") {
@@ -992,7 +1058,7 @@ function drawFloorplan(name) {
         }
 
         // Increasing hint count if guess is almost correct
-        if (settings.hints && mode !== "curse" && correctFloorplan.name !== name && dare1 !== "noHints" && dare2 !== "noHints" && hints != name.length && (steps > 3 || numGreen === 4) && (steps >= 8 || numGreen >= 3)) {
+        if (settings.hints && mode !== "curse" && correctFloorplan.name !== name && !daresCheck("noHints") && hints != name.length && (steps > 3 || numGreen === 4 || daresCheck("hint")) && (steps >= 8 || numGreen >= 3)) {
             hints++;
             let visibleCharCount = hints - 1;
             let words = correctFloorplan.displayName.split(' ');
@@ -1037,10 +1103,14 @@ function drawFloorplan(name) {
         } else {
             floorplan = floorplans.find(fp => fp.name === name);
         }
+
+
     }
 
-    // Adding guess results to share string
-    shareString += answerToEmoji(answers.cost) + answerToEmoji(answers.absent) + answerToEmoji(answers.excess) + answerToEmoji(answers.rarity) + answerToEmoji(answers.entrances) + '\n';
+    // Keeping green stats dare
+    if (daresCheck("keepGreen")) {
+        answersList.push(answers);
+    }
 
     // Checking floorplan guess for dares
     if (mode === "dare") {
@@ -1117,7 +1187,6 @@ function drawFloorplan(name) {
 
     // Creating types HTML with colors and icons
     let typesHTML = "";
-    const hasIcon = ["Drafting", "Entry", "Mechanical", "Puzzle", "Spread", "Tomorrow", "Rocket"];
     let i = 0;
     floorplan.types.forEach(type => {
         i++;
@@ -1140,7 +1209,7 @@ function drawFloorplan(name) {
     let entrancesHTML = `${floorplan.entrances ? `<img class="type-icon" src="../assets/${floorplan.entrances}-icon.png">` : "?"}`;
 
     // Random stat archive dare
-    if (dare1 === "archived" || dare2 === "archived") {
+    if (daresCheck("archived")) {
         const archivedHTML = `<img class="archived-stat" src="../assets/archived-stat.png">`;
         switch(Math.floor(dareHashGenerator() * 4)) {
             case 0:
@@ -1166,6 +1235,9 @@ function drawFloorplan(name) {
                 break;
         }
     }
+
+    // Adding guess results to share string
+    shareString += answerToEmoji(answers.cost) + answerToEmoji(answers.absent) + answerToEmoji(answers.excess) + answerToEmoji(answers.rarity) + answerToEmoji(answers.entrances) + '\n';
 
     // Initializing ending if guessed correctly
     if (correctFloorplan.name === name && !puzzleMode && !guessingDisabled) {
@@ -1241,6 +1313,8 @@ function answerToEmoji(answer) {
             return "🟨 ";
         case "correct":
             return "🟩 ";
+        case "archived":
+            return "🟥 ";
         default:
             return " ";
     }
@@ -1453,8 +1527,11 @@ function initEnding(result) {
     document.getElementById("guesses-num").innerText = currentGuesses.length;
     document.getElementById("average-num").innerText = endless ? "-" : Math.round(((localData.totalGuesses / localData.wins) + Number.EPSILON) * 10) / 10;
     document.getElementById("streak-num").innerText = endless ? "-" : localData.streak;
+
+    // Adding final stats to share string
     shareString += currentGuesses.length.toString() + (currentGuesses.length === 1 ? " guess" : " guesses");
-    if (mode === "curse") shareString += " " + steps.toString() + "steps remaining";
+    if (mode === "curse" && steps > 0) shareString += " " + steps.toString() + " steps remaining" ;
+    if (mode !== "bequest") shareString += " - " + result;
 
     // Resetting streak if lost
     if (result === "DEFEAT" && !endless) {
@@ -1484,6 +1561,14 @@ function initEnding(result) {
     setTimeout(function() {
         document.getElementById("timer-container").style.opacity = 1;
     }, 3700);
+    if (mode === "dare") {
+        if (result === "DEFEAT") document.getElementById("dare-bird").classList.remove("hidden");
+        if (!dare1State) document.getElementById("dare1-ending").classList.add("dare-failed");
+        if (!dare2State) document.getElementById("dare2-ending").classList.add("dare-failed");
+        setTimeout(function() {
+            document.getElementById("dare-ending-container").style.opacity = 1;
+        }, 4900);
+    }
 
     // Fading away when exit button is pressed
     document.getElementById("ending-exit-button").addEventListener("click", () => {
@@ -1518,9 +1603,28 @@ function initEnding(result) {
         if (sound) exitSFX.play();
 
         // Showing copied text
-        if (copiedTimer) {
-            clearTimeout(copiedTimer);
+        if (copiedTimer) clearTimeout(copiedTimer);
+        document.getElementById("copied-text").classList.remove("hidden");
+        copiedTimer = setTimeout(() => {
+            document.getElementById("copied-text").classList.add("hidden");
+        }, 2000);
+        return;
+    });
+    document.getElementById("ending-discord-button").addEventListener("click", () => {
+        const lines = shareString.split('\n');
+        for(let i = 0; i < lines.length; i++) {
+            if (i !== 0 && i !== 1 && i !== lines.length - 1) {
+                const fp = floorplans.find(fp => fp.name === currentGuesses[i-2]);
+                if (fp) lines[i] = lines[i] + " ||" + fp.displayName + "||";
+            }
         }
+        navigator.clipboard.writeText(lines.join('\n'));
+
+        // Playing sfx
+        if (sound) exitSFX.play();
+
+        // Showing copied text
+        if (copiedTimer) clearTimeout(copiedTimer);
         document.getElementById("copied-text").classList.remove("hidden");
         copiedTimer = setTimeout(() => {
             document.getElementById("copied-text").classList.add("hidden");
@@ -1705,6 +1809,10 @@ function updateStaticZoom() {
 }
 
 
+function daresCheck(dare) {
+    return dare1 === dare || dare2 === dare;
+}
+
 // Dare check per guess
 const colors = ["Red Room", "Green Room", "Hallway", "Bedroom", "Shop", "Blackprint", "Blueprint"];
 function dareFloorplanCheck(dare, floorplan) {
@@ -1721,8 +1829,8 @@ function dareFloorplanCheck(dare, floorplan) {
             if (numBedrooms > 1) return false;
             break;
         
-        case "yesterdayRoom":
-            if (floorplan.name === yesterdayFloorplan) return false;
+        case "yesterdayRooms":
+            if (yesterdayFloorplans.includes(floorplan.name)) return false;
             break;
         
         case "exactRedRooms":
@@ -1734,10 +1842,13 @@ function dareFloorplanCheck(dare, floorplan) {
             if (numRedRooms > 2) return false;
             break;
         
-        case "noSafe":
+        case "noSafeOrLever":
         case "noUpgrades":
         case "noSingleType":
         case "sixColors":
+        case "noTypeIcon":
+        case "no3Types":
+        case "noDucts":
             if (dare !== "" && dares.find(x => x.name === dare).incompatibleRooms.includes(floorplan.name)) return false;
             break;
         
@@ -1746,6 +1857,8 @@ function dareFloorplanCheck(dare, floorplan) {
             break;
         
         case "dupeFirstLetters":
+            if (floorplan.name === correctFloorplan.name) return null;
+
             const letters = [];
             currentGuesses.forEach((guess) => {
                 letters.push(guess[0]);
@@ -1755,14 +1868,14 @@ function dareFloorplanCheck(dare, floorplan) {
             let numDuplicates = 0;
             for (const char of letters) {
                 counts[char] = (counts[char] || 0) + 1;
-                if (counts[char] > 1) numDuplicates += counts[char] - 1;
+                if (counts[char] > 1) numDuplicates++;
             }
             
-            if (numDuplicates > 1) return false;
+            if (numDuplicates > 0) return false;
             break;
         
         case "singleCostDiff":
-            if (prevFloorplan && Math.abs(floorplan.cost - prevFloorplan.cost) > 1) return false;
+            if (prevFloorplan && Math.abs(floorplan.cost - prevFloorplan.cost) !== 1) return false;
             break;
         
         case "startEntrance":
@@ -1782,6 +1895,28 @@ function dareFloorplanCheck(dare, floorplan) {
             });
             if (totalCost > 8) return false;
             break;
+        
+        case "limitedRarities":
+            let rarities = [];
+            currentGuesses.forEach((guess) => {
+                const roomRarity = floorplans.find(fp => fp.name === guess).rarity
+                if (!rarities.includes(roomRarity)) rarities += roomRarity;
+            });
+            if (rarities.length > 3) return false;
+            break;
+
+        case "diffEntrances":
+            if(prevFloorplan && floorplan.entrances === prevFloorplan.entrances) return false;
+            break;
+        
+        case "keepGreen":
+            const len = answersList.length - 1;
+            if(len === 0) return null;
+            if (answersList[len - 1].cost === "correct" && answersList[len].cost !== "correct") return false;
+            if (answersList[len - 1].type === "correct" && answersList[len].type !== "correct") return false;
+            if (answersList[len - 1].rarity === "correct" && answersList[len].rarity !== "correct") return false;
+            if (answersList[len - 1].entrances === "correct" && answersList[len].entrances !== "correct") return false;
+            break;
     }
     return null;
 }
@@ -1799,9 +1934,6 @@ function dareEndingCheck(dare) {
         
         case "hint":
             return hints > 0;
-        
-        case "antechamberLever":
-            return currentGuesses.filter(guess => ["secretgarden", "greenhouse", "greathall", "weightroom", "mechanarium", "throneroom", "throneoftheblueprince"].includes(guess)).length > 0;
         
         case "deadEndEquals":
             let deadEndTally = 0;
@@ -1822,14 +1954,6 @@ function dareEndingCheck(dare) {
                 });
             });
             return colorsTracker.length >= 6;
-        
-        case "deadEndQuotes":
-            let found = false;
-            currentGuesses.forEach((guess) => {
-                if (floorplans.find(fp => fp.name === guess).types.includes('"Dead End"')) found = true;
-            });
-            if (found) return true;
-            break;
         
         case "curseMode":
             return JSON.parse(localStorage.getItem('curseData')).lastDayEnded === daysSinceLaunch;
@@ -1856,7 +1980,7 @@ function startLavatoryTimer() {
     const lavatoryDare = dare1 === "lavatoryWait" ? 1 : 2;
     let timePassed = false;
     const lavatoryTimer = setTimeout(() => {
-        lavatoryDare === "1" ? dare1State = true : dare2State = true;
+        dare1 === "lavatoryWait" ? dare1State = true : dare2State = true;
         timePassed = true;
     }, 30000);
     document.addEventListener("click", () => {

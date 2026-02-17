@@ -320,7 +320,14 @@ body {
     width: 14vw;
     height: auto;
     user-select: none;
-    -webkit-user-drag: none;
+}
+
+.gallery-item.cropped {
+    mask-image: linear-gradient(black, black), linear-gradient(black, black);
+    mask-composite: exclude;
+    mask-repeat: no-repeat;
+    mask-size: 100% 100%, 75% 75%;
+    mask-position: center;
 }
 
 .cannot-draft {
@@ -549,15 +556,17 @@ body {
 .dare1 {
     position: absolute;
     top: 30%;
-    height: 20%;
-    width: auto;
+    left: 34%;
+    width: 50%;
+    height: auto;
 }
 
 .dare2 {
     position: absolute;
     top: 53%;
-    height: 20%;
-    width: auto;
+    left: 34%;
+    width: 50%;
+    height: auto;
 }
 
 .close-button {
@@ -677,6 +686,7 @@ body {
 .settings-box {
     height: 90vh;
     width: auto;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.8));
 }
 
 .switch-button {
@@ -886,6 +896,51 @@ body {
     font-size: 8vh;
 }
 
+.dare-ending-container {
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.dare-bird {
+    position: fixed;
+    transform: translateY(-50%);
+    top: 50%;
+    right: 10%;
+    height: 50%;
+    width: auto;
+}
+
+.ending-dares-note {
+    position: fixed;
+    transform: translateY(-50%);
+    top: 50%;
+    left: 2%;
+    height: 35%;
+    width: auto;
+}
+
+.dare1-ending {
+    position: fixed;
+    rotate: 0.5deg;
+    top: 40%;
+    left: 3%;
+    width: 20%;
+    height: auto;
+}
+
+.dare2-ending {
+    position: fixed;
+    rotate: 0.5deg;
+    top: 54%;
+    left: 2.8%;
+    width: 20%;
+    height: auto;
+}
+
+.dare-failed {
+    filter: invert(25%) sepia(50%) saturate(3000%) hue-rotate(-30deg) brightness(40%);
+}
+
 .copied-text {
     position: fixed;
     bottom: 12%;
@@ -900,7 +955,7 @@ body {
     position: fixed;
     width: 100%;
     bottom: 5vh;
-    gap: 2vh;
+    gap: 3vh;
 }
 
 .ending-button {
@@ -915,8 +970,13 @@ body {
     width: auto;
 }
 
+.discord-icon {
+    padding-bottom: 1vh;
+    height: 5vh;
+    width: auto;
+}
+
 .zoomable {
-    -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
 }
 
