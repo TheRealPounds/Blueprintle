@@ -347,7 +347,7 @@ if (mode === "dare") {
 
 
 // Syncing dare mode in case dare states or defeat cause we're because of guesses
-if (mode === "dare" && localData.lastDayEnded === daysSinceLaunch) {
+if (mode === "dare" && !endless && localData.lastDayEnded === daysSinceLaunch) {
     dare1State = localData.dare1Final;
     dare2State = localData.dare2Final;
     if (!endingOn) initEnding("DEFEAT");
