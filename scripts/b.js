@@ -11,7 +11,7 @@ console.log("js loaded");
 
 let settings = JSON.parse(localStorage.getItem('settings'));
 // 0-8 individual boxes     9 big box      10 safe
-//settings.b = [true, true, true, true, true, true, true, true, true, true, false]; saveData();
+// settings.b = [true, true, true, true, true, true, true, true, true, true, true]; saveData();
 
 // Local storage old format data fix 
 if (!settings || !settings.sound || !settings.b) {
@@ -304,9 +304,11 @@ function changeLetterPage(page) {
     document.getElementById("final-letter").src = `../assets/final-letter${page}.png`;
 
     if (page === 0) {
+        document.getElementById("stamp").classList.remove("hidden");
         prevButton.classList.add("disabled");
         prevButton.classList.remove("clickable");
     } else {
+        document.getElementById("stamp").classList.add("hidden");
         prevButton.classList.remove("disabled");
         prevButton.classList.add("clickable");
     }
@@ -734,12 +736,6 @@ function black(matrix, row) {
 }
 
 
-// Saving local data
-function saveData() {
-    localStorage.setItem('settings', JSON.stringify(settings));
-}
-
-
 const magContainer = document.getElementById("magnifier-container");
 const lensEffect = document.getElementById("lens-effect");
 const hitboxes = document.querySelectorAll(".hitbox");
@@ -767,6 +763,24 @@ hitboxes.forEach(hb => {
     });
 });
 
+// Grabbing glass hitbox (Touch)
+hitboxes.forEach(hb => {
+    hb.addEventListener("touchstart", (e) => {
+        // Prevent browser scrolling/zooming when touching the glass
+        if (e.cancelable) e.preventDefault(); 
+
+        isMagGlassDragging = true;
+        document.body.classList.add('is-dragging-glass');
+        
+        // Get the first finger's position
+        const touch = e.touches[0];
+        const rect = magContainer.getBoundingClientRect();
+        
+        magOffset.x = touch.clientX - rect.left;
+        magOffset.y = touch.clientY - rect.top;
+    }, { passive: false });
+});
+
 
 // Moving glass when dragging
 window.addEventListener("mousemove", (e) => {
@@ -778,6 +792,19 @@ window.addEventListener("mousemove", (e) => {
 });
 
 
+// Moving glass when dragging (Touch)
+window.addEventListener("touchmove", (e) => {
+    if (!isMagGlassDragging) return;
+    
+    // Stop the screen from scrolling while dragging the glass
+    if (e.cancelable) e.preventDefault(); 
+
+    const touch = e.touches[0];
+    targetX = touch.clientX - magOffset.x;
+    targetY = touch.clientY - magOffset.y;
+}, { passive: false });
+
+
 // Releasing glass
 window.addEventListener("mouseup", () => {
     if (isMagGlassDragging) {
@@ -785,6 +812,16 @@ window.addEventListener("mouseup", () => {
         document.body.classList.remove('is-dragging-glass');
     }
 });
+
+
+// Releasing glass (Touch)
+window.addEventListener("touchend", () => {
+    if (isMagGlassDragging) {
+        isMagGlassDragging = false;
+        document.body.classList.remove('is-dragging-glass');
+    }
+});
+
 
 // Updating zoom when window resized
 window.addEventListener("resize", () => {
@@ -817,17 +854,21 @@ requestAnimationFrame(animateMagnifier);
 const zoomLevel = 2.5;
 function updateStaticZoom() {
     // Calculating dimensions based on window size for consistent ui size
-    const vh = window.innerHeight / 100;
+    const magRect = magContainer.getBoundingClientRect();
+    const vh = magRect.height / 80;
     const containerWidth = 36.75 * vh;
     const containerHeight = 80 * vh;
 
     // Calculating lens center
-    const lensRadius = 32 * vh / 2;
-    const magRect = magContainer.getBoundingClientRect();
+    const lensRadius = 16 * vh;
     const lensScreenX = magRect.left + (containerWidth * 0.05) + lensRadius;
     const lensScreenY = magRect.top + (containerHeight * 0.05) + lensRadius;
 
-    document.querySelectorAll(".zoomable").forEach(img => {
+    // Arrays to store CSS properties for multiple layers
+    const bgImages = [];
+    const bgSizes = [];
+    const bgPositions = [];
+    Array.from(document.querySelectorAll(".zoomable")).reverse().forEach(img => {
         // Skipping hidden images
         if (img.offsetParent === null) return;
 
@@ -840,22 +881,36 @@ function updateStaticZoom() {
 
         // Checking if glass is overlapping image and masking it if so
         if (!((lensScreenX + lensRadius) < imgRect.left || (lensScreenX - lensRadius) > imgRect.right || (lensScreenY + lensRadius) < imgRect.top || (lensScreenY - lensRadius) > imgRect.bottom)) {
+            // Applying mask to original image
             const mask = `radial-gradient(circle ${lensRadius - 2}px at ${xOnImage}px ${yOnImage}px, transparent 99%, black 100%)`;
             img.style.webkitMaskImage = mask;
             img.style.maskImage = mask;
+
+            // Checking if zoomed view is withing lens
+            if ((bgX + imgRect.width * zoomLevel) > 0 && bgX < lensEffect.offsetWidth && (bgY + imgRect.height * zoomLevel) > 0 && bgY < lensEffect.offsetHeight) {
+                bgImages.push(`url('${img.src}')`);
+                bgSizes.push(`${imgRect.width * zoomLevel}px ${imgRect.height * zoomLevel}px`);
+                bgPositions.push(`${bgX}px ${bgY}px`);
+            }
         } else {
+            // Removing mask if there's no overlap
             img.style.webkitMaskImage = "none";
             img.style.maskImage = "none";
         }
-
-        // Not diplaying anything if view is outside of image
-        if ((bgX + imgRect.width * zoomLevel) <= 0 || bgX >= lensEffect.offsetWidth || (bgY + imgRect.height * zoomLevel) <= 0 || bgY >= lensEffect.offsetHeight) {
-            lensEffect.style.backgroundImage = "none";
-        } else {
-            // Applying the image to the lens and changing its position to match lens center
-            lensEffect.style.backgroundImage = `url('${img.src}')`;
-            lensEffect.style.backgroundSize = `${imgRect.width * zoomLevel}px ${imgRect.height * zoomLevel}px`;
-            lensEffect.style.backgroundPosition = `${bgX}px ${bgY}px`;
-        }
     });
+
+    // Applying combined layers to the lens
+    if (bgImages.length > 0) {
+        lensEffect.style.backgroundImage = bgImages.join(", ");
+        lensEffect.style.backgroundSize = bgSizes.join(", ");
+        lensEffect.style.backgroundPosition = bgPositions.join(", ");
+    } else {
+        lensEffect.style.backgroundImage = "none";
+    }
+}
+
+
+// Saving local data
+function saveData() {
+    localStorage.setItem('settings', JSON.stringify(settings));
 }

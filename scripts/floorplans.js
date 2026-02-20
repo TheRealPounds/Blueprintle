@@ -73,7 +73,7 @@ export const floorplans = [
     {"name": "eastwinghall", "displayName": "EAST WING HALL", "cost": 0, "types": ["Hallway"], "rarity": 3, "entrances": 3},
     {"name": "corridor", "displayName": "CORRIDOR", "cost": 0, "types": ["Hallway"], "rarity": 1, "entrances": 2},
     {"name": "passageway", "displayName": "PASSAGEWAY", "cost": 2, "types": ["Hallway"], "rarity": 1, "entrances": 4},
-    {"name": "secretpassage", "displayName": "SECRET PASSAGE", "cost": 1, "types": ["Hallway", '"Dead End"'], "rarity": 2, "entrances": 2},
+    {"name": "secretpassage", "displayName": "SECRET PASSAGE", "cost": 1, "types": ["Hallway", '"Dead End"'], "rarity": 3, "entrances": 2},
     {"name": "foyer", "displayName": "FOYER", "cost": 2, "types": ["Hallway"], "rarity": 3, "entrances": 2},
     {"name": "greathall", "displayName": "GREAT HALL", "cost": 0, "types": ["Hallway"], "rarity": 3, "entrances": 4},
     {"name": "terrace", "displayName": "TERRACE", "cost": 0, "types": ["Green Room", "Dead End"], "rarity": 2, "entrances": 1},

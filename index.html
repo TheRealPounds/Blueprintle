@@ -30,7 +30,9 @@
         <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
     </head>
     <body>
-        <span id="mobile-warning" class="mobile-warning hidden">!!WARNING!! the site currently doesn't work well vertically, please switch to landscape mode</span>
+        <span id="mobile-warning" class="mobile-warning hidden">!!WARNING!! This site doesn't work well vertically, please switch to a wider landscape aspect ratio
+            <button id="mobile-warning-button" class="mobile-warning-button clickable">I understand and wish to proceed</button>
+        </span>
         <div id="every-container">
             <div id="draftsheet-container" class="draftsheet-container">
                 <img class="draftsheet" src="./assets/draftsheet.png">
@@ -41,6 +43,7 @@
                     <span id="measure-line" class="measure-line"></span>
                     <img class="measure-arrow" src="./assets/measure-arrow.png">
                 </div>
+                <span id="choose-timer" class="choose-timer hidden">8</span>
                 <div id="gallery-viewport" class="gallery-viewport" tabindex="-1">
                     <div id="gallery-track" class="gallery-track"></div>
                 </div>
@@ -69,12 +72,19 @@
                 <div class="steps-container" >
                     <img class="steps-icon" src="./assets/steps-icon.png">
                     <span id="steps-counter" class="steps-counter">0</span>
+                    <div id="curse-steps-container" class="curse-steps-container hidden">
+                        <img class="curse-monk" src="./assets/curse-monk.png">
+                        <div class="curse-steps-inner-container">
+                            <span id="curse-steps-num" class="curse-steps-num">-1</span>
+                            <img class="curse-steps-icon" src="./assets/curse-steps-icon.png">
+                        </div>
+                    </div>
                 </div>
 
                 <div id="magnifier-container" class="magnifier-container hidden">
                     <div class="hitbox circle-hitbox"></div>
                     <div class="hitbox handle-hitbox"></div>
-                    <img src="assets/magnifying-glass.png" class="glass-image">
+                    <img src="./assets/magnifying-glass.png" class="glass-image">
                     <div id="lens-effect" class="lens-effect"></div>
                 </div>
 
@@ -82,6 +92,10 @@
 
                 <div id="letter-container" class="letter-container hidden">
                     <img id="intro-letter" class="intro-letter zoomable" src="./assets/letter0.png">
+                    <img id="stamp" class="stamp zoomable hidden" src="./assets/arch-aries-stamp.png">
+                    <img id="new-clue-text" class="new-clue-text zoomable hidden" src="./assets/a-new-clue.png">
+                    <img id="dare1" class="dare1 zoomable hidden">
+                    <img id="dare2" class="dare2 zoomable hidden">
                     <div class="page-buttons-container">
                         <button id="prev-page-button" class="letter-page-button clickable">
                             <img class="letter-page-icon" src="./assets/left-icon.png">
@@ -92,6 +106,10 @@
                             <span class="letter-page-text">Next page</span>
                         </button>
                     </div>
+                </div>
+
+                <div id="curse-note-container" class="curse-note-container hidden">
+                    <img class="curse-note zoomable" src="./assets/curse-note.png">
                 </div>
 
                 <div id="kofi-container" class="kofi-container hidden">
@@ -109,9 +127,17 @@
                     </div>
                 </div>
 
+                <div id="mode-container" class="mode-container hidden">
+                    <button class="mode-button clickable" data-mode="bequest"><img class="mode-icon" src="./assets/bequest-mode.png"></button>
+                    <button class="mode-button clickable" data-mode="dare"><img class="mode-icon" src="./assets/dare-mode.png"></button>
+                    <button class="mode-button clickable" data-mode="curse"><img class="mode-icon" src="./assets/curse-mode.png"></button>
+                </div>
+
                 <div class="extra-buttons-container">
+                    <button id="mode-select-button" class="extra-button clickable"><img class="extra-icon" src="./assets/mode-select-icon.png"></button>
                     <button id="settings-button" class="extra-button clickable"><img class="extra-icon" src="./assets/settings-icon.png"></button>
-                    <button id="letter-button" class="extra-button clickable"><img class="extra-icon" src="./assets/letter-icon.png"></button>
+                    <button id="letter-button" class="extra-button clickable"><img id="intro-icon" class="extra-icon" src="./assets/letter-icon.png"></button>
+                    <button id="curse-note-button" class="extra-button clickable hidden"><img class="extra-icon" src="./assets/curse-icon.png"></button>
                     <button id="kofi-button" class="extra-button clickable"><img class="extra-icon" src="./assets/kofi-icon.png"></button>
                 </div>
 
@@ -128,7 +154,9 @@
                         </div>
                         <div class="ending-stats-container">
                             <div id="ihtmc" class="i-have-too-many-containers">
+                                <div class="ending-result-container"><span id="result-text" class="ending-result-text"></span></div>
                                 <div class="ending-div-line"></div>
+                                <span id="steps-remaining-text" class="ending-stat-text hidden">Steps remaining: <span id="steps-remaining" class="ending-stat-num"></span></span>
                                 <span class="ending-stat-text">Guesses Taken: <span id="guesses-num" class="ending-stat-num"></span></span>
                                 <span class="ending-stat-text">Your Average: <span id="average-num" class="ending-stat-num"></span></span>
                                 <span class="ending-stat-text">Daily Streak: <span id="streak-num" class="ending-stat-num"></span></span>
@@ -140,10 +168,20 @@
                             </div>
                         </div>
                     </div>
+                    <div id="dare-ending-container" class="dare-ending-container">
+                        <img id="dare-bird" class="dare-bird hidden" src="./assets/dare-bird.png">
+                        <img class="ending-dares-note" src="./assets/dares-note.png">
+                        <img id="dare1-ending" class="dare1-ending">
+                        <img id="dare2-ending" class="dare2-ending">
+                    </div>
                     <span id="copied-text" class="ending-stat-text copied-text hidden">Copied to clipboard!</span>
                     <div class="ending-buttons-container">
-                        <button id="ending-exit-button" class="ending-button clickable"><img class="ending-button-icon clickable" src="./assets/exit-icon.png"></button>
-                        <button id="ending-share-button" class="ending-button clickable"><img class="ending-button-icon clickable" src="./assets/share-icon.png"></button>
+                        <button id="ending-exit-button" class="ending-button clickable"><img class="ending-button-icon" src="./assets/exit-icon.png"></button>
+                        <div class="share-container">
+                            <button id="ending-share-button" class="ending-button clickable"><img class="ending-button-icon" src="./assets/share-icon.png"></button>
+                            <button id="ending-discord-button" class="ending-button clickable"><img class="discord-icon" src="./assets/discord-icon.png"></button>
+                        </div>
+                        <button id="ending-play-again-button" class="ending-button clickable hidden"><img class="ending-button-icon" src="./assets/play-again-icon.png"></button>
                     </div>
                 </div>
             </div>
@@ -153,6 +191,7 @@
                     <img class="crown hidden" src="./assets/crown.png">
                     <img class="logo" src="./assets/Logo.png">
                 </div>
+                <img id="mode-logo" class="mode-logo">
                 <div id="floorplans-container" class="vertical-container">
                     <img class="down-arrow" src="./assets/down arrow.png">
                 </div>

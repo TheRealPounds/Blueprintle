@@ -382,6 +382,14 @@ body {
     width: auto;
 }
 
+.stamp {
+    position: absolute;
+    top: 30.5%;
+    left: 68.7%;
+    height: 12%;
+    width: auto;
+}
+
 .close-button {
     position: fixed;
     top: 2vh;
