@@ -15,7 +15,13 @@ let settings = JSON.parse(localStorage.getItem('settings'));
 
 // Local storage old format data fix 
 if (!settings || !settings.sound || !settings.b) {
-    window.location.href = "https://blueprintle.org/";
+    settings = {
+        "sound": true,
+        "hints": true,
+        "colorblindIcons": true,
+        "b" : [false, false, false, false, false, false, false, false, false, false, false]
+    }
+    saveData();
 }
 
 let isFinal = checkFinalBox();

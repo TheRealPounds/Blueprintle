@@ -466,6 +466,8 @@ body {
 }
 
 .floorplan-entry.active {
+    position: unset;
+    visibility:  visible;
     transform: translateX(0);
     overflow: visible;
 }
@@ -534,7 +536,8 @@ body {
 
 .letter-container {
     position: fixed;
-    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
     height: 100dvh;
     display: flex;
     align-items: center;
@@ -550,7 +553,7 @@ body {
 .stamp {
     position: absolute;
     top: 29.8%;
-    left: 69.7%;
+    left: 72%;
     height: 10%;
     width: auto;
 }
@@ -565,16 +568,16 @@ body {
 
 .dare1 {
     position: absolute;
-    top: 30%;
-    left: 34%;
+    top: 32%;
+    left: 35%;
     width: 50%;
     height: auto;
 }
 
 .dare2 {
     position: absolute;
-    top: 53%;
-    left: 34%;
+    top: 55%;
+    left: 35%;
     width: 50%;
     height: auto;
 }

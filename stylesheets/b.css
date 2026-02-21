@@ -369,7 +369,8 @@ body {
 
 .final-letter-container {
     position: fixed;
-    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
     height: 100vh;
     display: flex;
     align-items: center;
@@ -385,7 +386,7 @@ body {
 .stamp {
     position: absolute;
     top: 30.5%;
-    left: 68.7%;
+    left: 71%;
     height: 12%;
     width: auto;
 }

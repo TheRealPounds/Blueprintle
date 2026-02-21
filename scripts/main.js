@@ -1293,17 +1293,12 @@ function drawFloorplan(name) {
     // Adding new entry to the DOM with animation
     document.getElementById("floorplans-container").appendChild(newEntryElement);
 
-    // Waiting for floorplan entry images to load
-    const images = newEntryElement.querySelectorAll('img');
-    const imagePromises = Array.from(images).map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise(resolve => {
-            img.onload = resolve;
-            img.onerror = resolve;
-        });
-    });
+    let hasShown = false;
+    const showEntry = () => {
+        // Quitting if already showing
+        if (hasShown) return;
+        hasShown = true;
 
-    Promise.all(imagePromises).then(() => {
         const entryHeight = newEntryElement.offsetHeight;
         newEntryElement.style.position = "";
         newEntryElement.style.visibility = "";
@@ -1332,7 +1327,22 @@ function drawFloorplan(name) {
             }
             requestAnimationFrame(followButton);
         }, 500);
+    };
+
+    const images = newEntryElement.querySelectorAll('img');
+    const imagePromises = Array.from(images).map(img => {
+        // If already loaded or cached
+        if (img.complete && img.naturalWidth !== 0) return Promise.resolve();
+        
+        return new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
+        });
     });
+
+    // showing entry once all entry images were loaded, or after 2 seconds in case something went wrong
+    Promise.all(imagePromises).then(showEntry);
+    setTimeout(showEntry, 2000);
 }
 
 function disableGuessing() {
