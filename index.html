@@ -28,6 +28,17 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+
+        <script>
+            window.goatcounter = {
+                path: function(p) {
+                    var m = goatcounter.get_query('mode');
+                    return m ? p + '?mode=' + m : p;
+                }
+            }
+        </script>
+        <script data-goatcounter="https://blueprintle.goatcounter.com/count"
+                async src="//gc.zgo.at/count.js"></script>
     </head>
     <body>
         <span id="mobile-warning" class="mobile-warning hidden">!!WARNING!! This site doesn't work well vertically, please switch to a wider landscape aspect ratio
