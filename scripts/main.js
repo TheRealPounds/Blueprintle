@@ -347,6 +347,7 @@ if (mode === "dare") {
 if (mode === "dare" && !endless && localData.lastDayEnded === daysSinceLaunch) {
     dare1State = localData.dare1Final;
     dare2State = localData.dare2Final;
+    disableGuessing();
     if (!endingOn) initEnding("DEFEAT");
 }
 
@@ -2053,4 +2054,5 @@ function startLavatoryTimer() {
 function saveData() {
     localStorage.setItem(mode + 'Data', JSON.stringify(localData));
     localStorage.setItem('settings', JSON.stringify(settings));
+
 }
