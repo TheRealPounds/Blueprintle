@@ -2003,7 +2003,7 @@ function dareEndingCheck(dare) {
         
         case "curseMode":
             const curseData = JSON.parse(localStorage.getItem('curseData'));
-            return curseData && curseData.lastDayEnded === daysSinceLaunch;
+            return curseData && curseData.lastDayWon === daysSinceLaunch;
         
         case "chess":
             const chessTracker = [];
@@ -2056,4 +2056,5 @@ function saveData() {
     localStorage.setItem('settings', JSON.stringify(settings));
 
 }
+
 
