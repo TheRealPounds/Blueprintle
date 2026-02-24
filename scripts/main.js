@@ -297,7 +297,7 @@ const dares = [
     {"name": "noUpgrades", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.includes("Upgrade")).map(fp => fp.name), "incompatibleDares": []},
     {"name": "lavatoryWait", "startState": false, "incompatibleRooms": ["lavatory"], "incompatibleDares": [yesterdayFloorplans.includes("lavatory") ? "yesterdayRooms" : ""]},
     {"name": "dupeFirstLetters", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["hideHistory"]},
-    {"name": "noSingleType", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.length !== 1).map(fp => fp.name), "incompatibleDares": []},
+    {"name": "noSingleType", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.length === 1).map(fp => fp.name), "incompatibleDares": []},
     {"name": "filterClear", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["onlySearch"]},
     {"name": "deadEndEquals", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["hideHistory"]},
     {"name": "singleCostDiff", "startState": true, "incompatibleRooms": ["trophyroom", "throneroom", "throneoftheblueprince"], "incompatibleDares": []},
@@ -2056,3 +2056,4 @@ function saveData() {
     localStorage.setItem('settings', JSON.stringify(settings));
 
 }
+
