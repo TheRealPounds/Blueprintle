@@ -60,6 +60,8 @@ let dare2;
 let dare1State;
 let dare2State;
 let prevFloorplan;
+let chooseDelay;
+let chooseInterval;
 const answersList = [];
 const hasIcon = ["Drafting", "Entry", "Mechanical", "Puzzle", "Spread", "Tomorrow", "Rocket"];
 
@@ -286,7 +288,7 @@ const yesterdayFloorplans = [
 const dareHashGenerator = mulberry32(endless ? Math.random() * 1000000 : daysSinceLaunch);
 const dares = [
     {"name": "archived", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["allGrey", "keepGreen"]},
-    {"name": "b2bColors", "startState": true, "incompatibleRooms": ["aquarium", "electriceelaquraium"], "incompatibleDares": []},
+    {"name": "b2bColors", "startState": true, "incompatibleRooms": ["aquarium", "electriceelaquraium"], "incompatibleDares": ["keepGreen"]},
     {"name": "allGrey", "startState": false, "incompatibleRooms": ["thefoundation", "garage", "musicroom", "lockerroom", "ballroom", "rumpusroom", "drawingroom", "chamberofmirrors", "thepool", "draftingstudio", "boilerroom", "security", "laboratory", "observatory", "conferenceroom", "aquarium", "electriceelaquarium", "servantsquarters", "eastwinghall", "greathall", "cloisterofdraxus", "secretgarden", "locksmith", "laundryroom", "bookshop", "mounthollygiftshop", "archives", "thekennel", "clocktower", "classroom", "planetarium", "mechanarium", "treasuretrove", "conservatory", "closedexhibit"], "incompatibleDares": ["archived", "keepGreen"]},
     {"name": "singleBedroom", "startState": true, "incompatibleRooms": [], "incompatibleDares": []},
     {"name": "allRarities", "startState": false, "incompatibleRooms": [], "incompatibleDares": ["limitedRarities", "keepGreen"]},
@@ -299,23 +301,23 @@ const dares = [
     {"name": "dupeFirstLetters", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["hideHistory"]},
     {"name": "noSingleType", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.length === 1).map(fp => fp.name), "incompatibleDares": []},
     {"name": "filterClear", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["onlySearch"]},
-    {"name": "deadEndEquals", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["hideHistory"]},
-    {"name": "singleCostDiff", "startState": true, "incompatibleRooms": ["trophyroom", "throneroom", "throneoftheblueprince"], "incompatibleDares": []},
+    {"name": "deadEndEquals", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["hideHistory", "keepGreen"]},
+    {"name": "singleCostDiff", "startState": true, "incompatibleRooms": ["trophyroom", "throneroom", "throneoftheblueprince"], "incompatibleDares": ["keepGreen"]},
     {"name": "chooseTimer", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["onlySearch"]},
     {"name": "noHints", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["hint"]},
-    {"name": "onlySearch", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["filterClear", "chooseTimer", "cropped"]},
+    {"name": "onlySearch", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["filterClear", "chooseTimer", "cropped", "keepGreen"]},
     {"name": "sixColors", "startState": false, "incompatibleRooms": ["aquarium", "electriceelaquarium", "corriyard", "thearmory", "maidschamber"], "incompatibleDares": []},
     {"name": "noTypeIcon", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.some(t => hasIcon.includes(t))).map(fp => fp.name), "incompatibleDares": []},
     {"name": "startEntrance", "startState": false, "incompatibleRooms": ["entrancehall"], "incompatibleDares": ["randomFirst", yesterdayFloorplans.includes("entrancehall") ? "yesterdayRooms" : ""]},
     {"name": "curseMode", "startState": false, "incompatibleRooms": [], "incompatibleDares": []},
-    {"name": "chess", "startState": false, "incompatibleRooms": [], "incompatibleDares": []},
+    {"name": "chess", "startState": false, "incompatibleRooms": [], "incompatibleDares": ["keepGreen"]},
     {"name": "totalCost", "startState": true, "incompatibleRooms": ["trophyroom", "throneroom", "throneoftheblueprince"], "incompatibleDares": []},
     {"name": "no3Types", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.length >= 3).map(fp => fp.name), "incompatibleDares": []},
     {"name": "limitedRarities", "startState": true, "incompatibleRooms": ["entrancehall", "antechamber", "room46"], "incompatibleDares": ["allRarities"]},
     {"name": "hideHistory", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["deadEndEquals", "dupeFirstLetters"]},
-    {"name": "diffEntrances", "startState": true, "incompatibleRooms": [], "incompatibleDares": []},
+    {"name": "diffEntrances", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["keepGreen"]},
     {"name": "noDucts", "startState": true, "incompatibleRooms": ["garage", "boilerroom", "pumproom", "laboratory", "laundryroom", "furnace", "lockerroom", "security", "passageway", "archives","darkroom", "weightroom", "electriceelaquarium"], "incompatibleDares": []},
-    {"name": "keepGreen", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["archived", "allGrey", "allRarities"]},
+    {"name": "keepGreen", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["archived", "allGrey", "allRarities", "diffEntrances", "chess", "sixColors", "singleCostDiff", "deadEndEquals", "b2bColors"]},
     {"name": "randomFirst", "startState": false, "incompatibleRooms": [], "incompatibleDares": ["startEntrance"]},
     {"name": "cropped", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["onlySearch"]},
 ];//{"name": "", "startState": true, "incompatibleRooms": [], "incompatibleDares": []},
@@ -355,6 +357,7 @@ if (mode === "dare" && !endless && localData.lastDayEnded === daysSinceLaunch) {
 // Initializing curse mode
 if (mode === "curse") {
     document.body.style.backgroundImage = 'url("../assets/curse-background.png")';
+    document.documentElement.style.backgroundColor = "#3A0000";
     newFloorplansButton.classList.add("cursed");
     document.getElementById("letter-button").classList.add("hidden");
     document.getElementById("curse-note-button").classList.remove("hidden");
@@ -402,7 +405,6 @@ document.querySelectorAll(".clickable").forEach((button) => {
 
 
 // New Floorplans Button Click
-let chooseInterval;
 document.getElementById("new-floorplans").addEventListener("click", () => {
     // Preventing clicking while active
     if (newFloorplansButton.classList.contains("disabled")) return;
@@ -516,7 +518,7 @@ document.getElementById("new-floorplans").addEventListener("click", () => {
         const chooseTimer = document.getElementById("choose-timer");
         chooseTimer.classList.add("hidden");
 
-        setTimeout(function() {
+        chooseDelay = setTimeout(function() {
             let time = 8;
             chooseTimer.innerText = 8;
             chooseTimer.classList.remove("hidden");
@@ -803,7 +805,7 @@ document.getElementById("intro-letter").addEventListener("click", () => {
 
 // UI close button
 document.querySelectorAll(".close-button").forEach((button) => {
-    if ((daresCheck("filterClear") ||daresCheck("chooseTimer")) && !button.id) button.classList.add("hidden");
+    if ((daresCheck("filterClear") || daresCheck("chooseTimer")) && !button.id) button.classList.add("hidden");
     button.addEventListener("click", () => {
         if (document.getElementById("close-button").classList.contains("hidden")) hideDraftSelect();
         toggleUIContainer(false);
@@ -945,6 +947,7 @@ function choseFloorplan(name) {
     document.getElementById("search-input").blur();
 
     // Clearing interval for choose timer dare
+    if (chooseDelay) clearTimeout(chooseDelay);
     if (chooseInterval) clearInterval(chooseInterval);
 
     // Preventing choosing if already chose this floorplan today
@@ -2003,7 +2006,7 @@ function dareEndingCheck(dare) {
         
         case "curseMode":
             const curseData = JSON.parse(localStorage.getItem('curseData'));
-            return curseData && curseData.lastDayWon === daysSinceLaunch;
+            return curseData && curseData.lastDayEnded === daysSinceLaunch;
         
         case "chess":
             const chessTracker = [];
@@ -2054,7 +2057,4 @@ function startLavatoryTimer() {
 function saveData() {
     localStorage.setItem(mode + 'Data', JSON.stringify(localData));
     localStorage.setItem('settings', JSON.stringify(settings));
-
 }
-
-
