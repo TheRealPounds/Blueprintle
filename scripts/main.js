@@ -1128,6 +1128,71 @@ function drawFloorplan(name) {
 
     }
 
+    // Creating gems HTML
+    let gemsHTML = "";
+    if (floorplan.cost === 0) {
+        gemsHTML = `<span class="info-text none">None</span>`;
+    } else {
+        for(let i = 0; i < floorplan.cost; i++) {
+            gemsHTML += `<img class="gem" src="./assets/gem.png">`
+        }
+    }
+    if (floorplan.name === '?') gemsHTML = '?';
+
+    // Creating types HTML with colors and icons
+    let typesHTML = "";
+    let i = 0;
+    floorplan.types.forEach(type => {
+        i++;
+        typesHTML += `<span class="info-text ${type.toLowerCase().replaceAll(' ', '-').replaceAll('"', '')}">${hasIcon.includes(type) ? `<img class="type-icon" src="./assets/${type.toLowerCase()}-type-icon.png">` : ""}${type}${i === floorplan.types.length ? "" : ", "}</span>`;
+    });
+    if (floorplan.name === '?') typesHTML = '?';
+
+    // Creating rarity HTML with dots
+    const rarityNames = ["n/a", "Commonplace", "Standard", "Unusual", "Rare", "Rumored", "?"];
+    let rarityHTML = "";
+    if (floorplan.rarity < 5) {
+        if (floorplan.rarity >= 1) rarityHTML += `<img class="rarity-dot" src="./assets/commonplace-dot.png"> `;
+        if (floorplan.rarity >= 2) rarityHTML += `<img class="rarity-dot" src="./assets/standard-dot.png"> `;
+        if (floorplan.rarity >= 3) rarityHTML += `<img class="rarity-dot" src="./assets/unusual-dot.png"> `;
+        if (floorplan.rarity >= 4) rarityHTML += `<img class="rarity-dot" src="./assets/rare-dot.png"> `;
+    }
+    rarityHTML += `<span class="${floorplan.rarity === 6 ? "" : "info-text"} ${rarityNames[floorplan.rarity].toLowerCase()}">${rarityNames[floorplan.rarity]}</span>`;
+
+    // Creating entrances number HTML
+    let entrancesHTML = `${floorplan.entrances ? `<img class="type-icon" src="./assets/${floorplan.entrances}-icon.png">` : "?"}`;
+
+    // Random stat archive dare
+    if (daresCheck("archived")) {
+        const archivedHTML = `<img class="archived-stat" src="./assets/archived-stat.png">`;
+        switch(Math.floor(dareHashGenerator() * 4)) {
+            case 0:
+                answers.cost = "archived";
+                gemsHTML = archivedHTML;
+                break;
+            
+            case 1:
+                answers.type = "archived";
+                answers.absent = "archived";
+                answers.excess = "archived";
+                typesHTML= archivedHTML;
+                break;
+            
+            case 2:
+                answers.rarity = "archived";
+                rarityHTML = archivedHTML;
+                break;
+            
+            case 3:
+                answers.entrances = "archived";
+                entrancesHTML = archivedHTML;
+                break;
+        }
+    }
+
+    // Adding guess results to share string
+    shareString += answerToEmoji(answers.cost) + answerToEmoji(answers.absent) + answerToEmoji(answers.excess) + answerToEmoji(answers.rarity) + answerToEmoji(answers.entrances) + '\n';
+
     // Keeping green stats dare
     if (daresCheck("keepGreen")) {
         answersList.push(answers);
@@ -1194,71 +1259,6 @@ function drawFloorplan(name) {
             }, 1500);
         }
     }
-
-    // Creating gems HTML
-    let gemsHTML = "";
-    if (floorplan.cost === 0) {
-        gemsHTML = `<span class="info-text none">None</span>`;
-    } else {
-        for(let i = 0; i < floorplan.cost; i++) {
-            gemsHTML += `<img class="gem" src="./assets/gem.png">`
-        }
-    }
-    if (floorplan.name === '?') gemsHTML = '?';
-
-    // Creating types HTML with colors and icons
-    let typesHTML = "";
-    let i = 0;
-    floorplan.types.forEach(type => {
-        i++;
-        typesHTML += `<span class="info-text ${type.toLowerCase().replaceAll(' ', '-').replaceAll('"', '')}">${hasIcon.includes(type) ? `<img class="type-icon" src="./assets/${type.toLowerCase()}-type-icon.png">` : ""}${type}${i === floorplan.types.length ? "" : ", "}</span>`;
-    });
-    if (floorplan.name === '?') typesHTML = '?';
-
-    // Creating rarity HTML with dots
-    const rarityNames = ["n/a", "Commonplace", "Standard", "Unusual", "Rare", "Rumored", "?"];
-    let rarityHTML = "";
-    if (floorplan.rarity < 5) {
-        if (floorplan.rarity >= 1) rarityHTML += `<img class="rarity-dot" src="./assets/commonplace-dot.png"> `;
-        if (floorplan.rarity >= 2) rarityHTML += `<img class="rarity-dot" src="./assets/standard-dot.png"> `;
-        if (floorplan.rarity >= 3) rarityHTML += `<img class="rarity-dot" src="./assets/unusual-dot.png"> `;
-        if (floorplan.rarity >= 4) rarityHTML += `<img class="rarity-dot" src="./assets/rare-dot.png"> `;
-    }
-    rarityHTML += `<span class="${floorplan.rarity === 6 ? "" : "info-text"} ${rarityNames[floorplan.rarity].toLowerCase()}">${rarityNames[floorplan.rarity]}</span>`;
-
-    // Creating entrances number HTML
-    let entrancesHTML = `${floorplan.entrances ? `<img class="type-icon" src="./assets/${floorplan.entrances}-icon.png">` : "?"}`;
-
-    // Random stat archive dare
-    if (daresCheck("archived")) {
-        const archivedHTML = `<img class="archived-stat" src="./assets/archived-stat.png">`;
-        switch(Math.floor(dareHashGenerator() * 4)) {
-            case 0:
-                answers.cost = "archived";
-                gemsHTML = archivedHTML;
-                break;
-            
-            case 1:
-                answers.type = "archived";
-                answers.absent = "archived";
-                answers.excess = "archived";
-                typesHTML= archivedHTML;
-                break;
-            
-            case 2:
-                answers.rarity = "archived";
-                rarityHTML = archivedHTML;
-                break;
-            
-            case 3:
-                answers.entrances = "archived";
-                entrancesHTML = archivedHTML;
-                break;
-        }
-    }
-
-    // Adding guess results to share string
-    shareString += answerToEmoji(answers.cost) + answerToEmoji(answers.absent) + answerToEmoji(answers.excess) + answerToEmoji(answers.rarity) + answerToEmoji(answers.entrances) + '\n';
 
     // Initializing ending if guessed correctly
     if (correctFloorplan.name === name && !puzzleMode && !guessingDisabled) {
@@ -1579,8 +1579,8 @@ function initEnding(result) {
 
     // Adding final stats to share string
     shareString += currentGuesses.length.toString() + (currentGuesses.length === 1 ? " guess" : " guesses");
-    if (mode === "curse" && steps > 0) shareString += " " + steps.toString() + " steps remaining" ;
     if (mode !== "bequest") shareString += " - " + result;
+    if (mode === "curse" && steps > 0) shareString += " " + steps.toString() + ` step${steps > 1 ? 's' : ''} remaining`;
 
     // Resetting streak if lost
     if (result === "DEFEAT" && !endless) {

@@ -115,7 +115,7 @@ export const floorplans = [
     {"name": "planetarium", "displayName": "PLANETARIUM", "cost": 0, "types": ["Tomorrow", "Blueprint", "Dead End", "Addition"], "rarity": 2, "entrances": 1},
     {"name": "mechanarium", "displayName": "MECHANARIUM", "cost": 0, "types": ["Mechanical", "Blueprint", "Addition"], "rarity": 3, "entrances": 4},
     {"name": "treasuretrove", "displayName": "TREASURE TROVE", "cost": 1, "types": ["Blackprint", "Addition"], "rarity": 3, "entrances": 2},
-    {"name": "throneroom", "displayName": "THRONEROOM", "cost": 5, "types": ["Blackprint", "Addition"], "rarity": 4, "entrances": 3},
+    {"name": "throneroom", "displayName": "THRONE ROOM", "cost": 5, "types": ["Blackprint", "Addition"], "rarity": 4, "entrances": 3},
     {"name": "throneoftheblueprince", "displayName": "THRONE OF THE BLUE PRINCE", "cost": 5, "types": ["Drafting", "Blueprint", "Addition"], "rarity": 4, "entrances": 3},
     {"name": "tunnel", "displayName": "TUNNEL", "cost": 0, "types": ["Drafting", "Hallway", "Addition"], "rarity": 2, "entrances": 2},
     {"name": "conservatory", "displayName": "CONSERVATORY", "cost": 1, "types": ["Drafting", "Green Room", "Addition"], "rarity": 3, "entrances": 2},
