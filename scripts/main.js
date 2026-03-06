@@ -1033,7 +1033,19 @@ function drawFloorplan(name) {
         }
 
         // Type comparison
-        const numTypesShared = correctFloorplan.types.filter(value => value !== "" && floorplan.types.includes(value)).length;
+        const floorplanCounts = {};
+        floorplan.types.forEach(value => {
+            if (value !== "") floorplanCounts[value] = (floorplanCounts[value] || 0) + 1;
+        });
+
+        let numTypesShared = 0;
+        correctFloorplan.types.forEach(value => {
+            if (value !== "" && floorplanCounts[value] > 0) {
+                numTypesShared++;
+                floorplanCounts[value]--;
+            }
+        });
+
         const numTypesExcess = floorplan.types.filter(value => value !== "").length - numTypesShared;
         const numTypesCorrect = correctFloorplan.types.filter(value => value !== "").length;
         if (numTypesShared != 0) {
@@ -1041,15 +1053,15 @@ function drawFloorplan(name) {
             answers.absent = "close";
             answers.excess = "close";
 
-            if (numTypesShared == numTypesCorrect) {
+            if (numTypesShared === numTypesCorrect) {
                 answers.absent = "correct";
                 numGreen++;
-                if (numTypesExcess == 0) {
+                if (numTypesExcess === 0) {
                     answers.type = "correct";
                     answers.excess = "correct";
                 }
             } else {
-                if (numTypesExcess == 0) {
+                if (numTypesExcess === 0) {
                     answers.excess = "correct";
                     numGreen++;
                 }
@@ -1592,6 +1604,11 @@ function initEnding(result) {
     const endingMusic = result === "SUCCESS" ? callItADay : goodbyeToTheSea;
     if (settings.sound) {
         endingMusic.play();
+
+        // Pausing ending music on tab out or exit
+        document.addEventListener("visibilitychange", () => {
+            endingMusic.pause();
+        });
     }
 
     // Starting all the ending screen fade in animations
