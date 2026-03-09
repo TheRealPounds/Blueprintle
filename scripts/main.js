@@ -16,7 +16,7 @@ if ((urlParams.get("color") && urlParams.get("color").toLowerCase() === "black")
 const debug = urlParams.get("debug") === "true" ? true : false;
 const endless = debug || urlParams.get("endlessMode") === "true" ? true : false || urlParams.get("endless") === "true" ? true : false;
 const mode = urlParams.get("mode") === "dare" ? "dare" : urlParams.get("mode") === "curse" ? "curse" : "bequest";
-const debugDay = null//urlParams.get("day");
+const debugDay = urlParams.get("day");
 const debugFloorplan = urlParams.get("floorplan");
 
 const gallery = document.getElementById("gallery-viewport");
@@ -26,13 +26,11 @@ const nextButton = document.getElementById("next-page-button");
 const colorTextElm = document.getElementById("color-filter-text");
 const stepsCounter = document.getElementById("steps-counter");
 
-const launchDate = mode === "bequest" ? new Date(2026, 1, 2).getTime() : new Date(2026, 1, 19).getTime();
-const today = debugDay ? new Date(debugDay) : new Date();
-today.setHours(0, 0, 0, 0);
-const daysSinceLaunch = Math.floor((today.getTime() - launchDate) / 86400000);
-let tomorrow = new Date(today);
-tomorrow.setDate(tomorrow.getDate() + 1);
-tomorrow = tomorrow.getTime();
+const launchDate = Date.UTC(2026, 1, mode === "bequest" ? 2 : 19);
+const now = debugDay ? new Date(debugDay) : new Date();
+const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+const daysSinceLaunch = (today - launchDate) / 86400000;
+const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime();
 
 const hoverSFX = new Audio("./audio/hover.mp3");
 const draftStartSFX = new Audio("./audio/start-draft.mp3");
@@ -130,7 +128,7 @@ if (debugFloorplan && debug) {
         if (debug) console.log(correctFloorplan.name);
     } else {
         // Either picking a floorplan from hashed date or the date override if there is one
-        const todayString = new Intl.DateTimeFormat('en-CA').format(today);
+        const todayString = now.getFullYear().toString() + '-' + (now.getMonth() + 1).toString().padStart(2, '0') + '-' + (now.getDate()).toString().padStart(2, '0');
         if (dateOverrides[todayString] && mode === "bequest") {
             correctFloorplan = floorplans.find(fp => fp.name === dateOverrides[todayString]);
         } else {
@@ -251,8 +249,8 @@ if (settings.b[10]) {
 
 // Timer interval until new day
 setInterval(function() {
-    const now = new Date().getTime();
-    const distance = tomorrow - now;
+    const currentTime = new Date().getTime();
+    const distance = tomorrow- currentTime;
 
     // Refreshing page when day is finished
     if (distance < 0) {
