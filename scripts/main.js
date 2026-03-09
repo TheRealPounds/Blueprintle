@@ -26,7 +26,7 @@ const nextButton = document.getElementById("next-page-button");
 const colorTextElm = document.getElementById("color-filter-text");
 const stepsCounter = document.getElementById("steps-counter");
 
-const launchDate = mode === "bequest" ? new Date('2026-02-02T00:00:00').getTime() : new Date('2026-02-19T00:00:00').getTime();
+const launchDate = mode === "bequest" ? new Date(2026, 1, 2).getTime() : new Date(2026, 1, 19).getTime();
 const today = debugDay ? new Date(debugDay) : new Date();
 today.setHours(0, 0, 0, 0);
 const daysSinceLaunch = Math.floor((today.getTime() - launchDate) / 86400000);
