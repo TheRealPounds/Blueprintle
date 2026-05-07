@@ -151,6 +151,7 @@ if (!localData || debug) {
         "guesses": [],
         "lastDayPlayed": 0,
         "lastDayWon": 0,
+        "shareString": ""
     }
     if (mode !== "bequest") localData.lastDayEnded = -1;
     if (mode === "dare") {
@@ -194,6 +195,10 @@ if (oldData) {
     if (mode === "bequest") localData = oldData;
     localStorage.setItem('bequestData', JSON.stringify(oldData));
     localStorage.removeItem('localData');
+}
+if (!("shareString" in localData)) {
+    localData.shareString = "";
+    saveData();
 }
 
 // Updating stuff from settings
@@ -306,11 +311,11 @@ const dares = [
     {"name": "onlySearch", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["filterClear", "chooseTimer", "cropped", "keepGreen"]},
     {"name": "sixColors", "startState": false, "incompatibleRooms": ["aquarium", "electriceelaquarium", "corriyard", "thearmory", "maidschamber"], "incompatibleDares": []},
     {"name": "noTypeIcon", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.some(t => hasIcon.includes(t))).map(fp => fp.name), "incompatibleDares": []},
-    {"name": "startEntrance", "startState": false, "incompatibleRooms": ["entrancehall"], "incompatibleDares": ["randomFirst", yesterdayFloorplans.includes("entrancehall") ? "yesterdayRooms" : ""]},
+    {"name": "startEntrance", "startState": false, "incompatibleRooms": ["entrancehall"], "incompatibleDares": ["randomFirst", "no3Types", yesterdayFloorplans.includes("entrancehall") ? "yesterdayRooms" : ""]},
     {"name": "curseMode", "startState": false, "incompatibleRooms": [], "incompatibleDares": []},
     {"name": "chess", "startState": false, "incompatibleRooms": [], "incompatibleDares": ["keepGreen"]},
-    {"name": "totalCost", "startState": true, "incompatibleRooms": ["trophyroom", "throneroom", "throneoftheblueprince"], "incompatibleDares": []},
-    {"name": "no3Types", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.length >= 3).map(fp => fp.name), "incompatibleDares": []},
+    {"name": "totalCost", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.cost === 0 || fp.cost === 5).map(fp => fp.name), "incompatibleDares": []},
+    {"name": "no3Types", "startState": true, "incompatibleRooms": floorplans.filter(fp => fp.types.length >= 3).map(fp => fp.name), "incompatibleDares": ["startEntrance"]},
     {"name": "limitedRarities", "startState": true, "incompatibleRooms": ["entrancehall", "antechamber", "room46"], "incompatibleDares": ["allRarities"]},
     {"name": "hideHistory", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["deadEndEquals", "dupeFirstLetters"]},
     {"name": "diffEntrances", "startState": true, "incompatibleRooms": [], "incompatibleDares": ["keepGreen"]},
@@ -1591,6 +1596,8 @@ function initEnding(result) {
     shareString += currentGuesses.length.toString() + (currentGuesses.length === 1 ? " guess" : " guesses");
     if (mode !== "bequest") shareString += " - " + result;
     if (mode === "curse" && steps > 0) shareString += " " + steps.toString() + ` step${steps > 1 ? 's' : ''} remaining`;
+    localData.shareString = shareString;
+    saveData();
 
     // Resetting streak if lost
     if (result === "DEFEAT" && !endless) {
@@ -1666,6 +1673,9 @@ function initEnding(result) {
         // Playing sfx
         if (settings.sound) exitSFX.play();
 
+        // Setting copy text
+        document.getElementById("copied-text").innerText = "Copied " + mode + " mode results to clipboard!"
+
         // Showing copied text
         if (copiedTimer) clearTimeout(copiedTimer);
         document.getElementById("copied-text").classList.remove("hidden");
@@ -1675,17 +1685,53 @@ function initEnding(result) {
         return;
     });
     document.getElementById("ending-discord-button").addEventListener("click", () => {
-        const lines = shareString.split('\n');
-        for(let i = 0; i < lines.length; i++) {
-            if (i !== 0 && i !== 1 && i !== lines.length - 1) {
-                const fp = floorplans.find(fp => fp.name === currentGuesses[i-2]);
-                if (fp) lines[i] = lines[i] + " ||" + fp.displayName + "||";
+        function addNames(tempShareString, tempGuesses) {
+            const lines = tempShareString.split('\n');
+            for(let i = 0; i < lines.length; i++) {
+                if (i !== 0 && i !== 1 && i !== lines.length - 1) {
+                    const fp = floorplans.find(fp => fp.name === tempGuesses[i-2]);
+                    if (fp) lines[i] = lines[i] + " ||" + fp.displayName + "||";
+                }
             }
+            let discordShareString = lines.join('\n');
+            discordShareString = discordShareString.replaceAll("THRONE OF THE BLUE PRINCE", "TotBP");
+            discordShareString = discordShareString.replaceAll("MOUNT HOLLY GIFT SHOP", "GIFT SHOP");
+            return discordShareString;
         }
-        navigator.clipboard.writeText(lines.join('\n'));
 
         // Playing sfx
         if (settings.sound) exitSFX.play();
+
+        // Setting copy text
+        if (endless) {
+            document.getElementById("copied-text").innerText = "Copied results to clipboard!"
+            navigator.clipboard.writeText(addNames(shareString, currentGuesses));
+        } else {
+            let finishedModes = 0;
+            let finalShareString = "";
+            const dayOffset = mode === "bequest" ? 0 : 17;
+
+            let tempData = JSON.parse(localStorage.getItem("bequestData"));
+            if (tempData && "shareString" in tempData && tempData.lastDayWon === daysSinceLaunch + dayOffset) {
+                finishedModes++;
+                finalShareString += addNames(tempData.shareString, tempData.guesses);
+            }
+
+            tempData = JSON.parse(localStorage.getItem("dareData"));
+            if (tempData && "shareString" in tempData && tempData.lastDayWon === daysSinceLaunch - (17-dayOffset)) {
+                finishedModes++;
+                finalShareString += (finalShareString !== "" ? '\n\n' : "") + addNames(tempData.shareString, tempData.guesses);
+            }
+
+            tempData = JSON.parse(localStorage.getItem("curseData"));
+            if (tempData && "shareString" in tempData && tempData.lastDayWon === daysSinceLaunch - (17-dayOffset)) {
+                finishedModes++;
+                finalShareString += (finalShareString !== "" ? '\n\n' : "") + addNames(tempData.shareString, tempData.guesses);
+            }
+
+            navigator.clipboard.writeText(finalShareString);
+            document.getElementById("copied-text").innerText = "Copied " + finishedModes + (finishedModes === 1 ? " mode's" : " modes'") + " results to clipboard!";
+        }
 
         // Showing copied text
         if (copiedTimer) clearTimeout(copiedTimer);
@@ -2001,14 +2047,22 @@ function dareEndingCheck(dare) {
         
         case "deadEndEquals":
             let deadEndTally = 0;
+            let otherTally = 0;
             currentGuesses.forEach((guess) => {
-                if (floorplans.find(fp => fp.name === guess).types.includes("Dead End")) {
+                const floorplan = floorplans.find(fp => fp.name === guess);
+                if (floorplan.types.includes("Dead End")) {
                     deadEndTally++;
+                    otherTally++;
                 } else {
                     deadEndTally--;
+                    if (floorplan.types.includes('"Dead End"')) {
+                        otherTally++;
+                    } else {
+                        otherTally--;
+                    }
                 }
             });
-            return deadEndTally === 0;
+            return deadEndTally === 0 || otherTally === 0;
         
         case "sixColors":
             const colorsTracker = [];
@@ -2042,7 +2096,6 @@ function dareEndingCheck(dare) {
 
 
 function startLavatoryTimer() {
-    const lavatoryDare = dare1 === "lavatoryWait" ? 1 : 2;
     let timePassed = false;
     const lavatoryTimer = setTimeout(() => {
         dare1 === "lavatoryWait" ? dare1State = true : dare2State = true;
