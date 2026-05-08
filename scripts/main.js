@@ -1718,13 +1718,13 @@ function initEnding(result) {
             }
 
             tempData = JSON.parse(localStorage.getItem("dareData"));
-            if (tempData && "shareString" in tempData && tempData.lastDayWon === daysSinceLaunch - (17-dayOffset)) {
+            if (tempData && "shareString" in tempData && tempData.lastDayEnded === daysSinceLaunch - (17-dayOffset)) {
                 finishedModes++;
                 finalShareString += (finalShareString !== "" ? '\n\n' : "") + addNames(tempData.shareString, tempData.guesses);
             }
 
             tempData = JSON.parse(localStorage.getItem("curseData"));
-            if (tempData && "shareString" in tempData && tempData.lastDayWon === daysSinceLaunch - (17-dayOffset)) {
+            if (tempData && "shareString" in tempData && tempData.lastDayEnded === daysSinceLaunch - (17-dayOffset)) {
                 finishedModes++;
                 finalShareString += (finalShareString !== "" ? '\n\n' : "") + addNames(tempData.shareString, tempData.guesses);
             }
