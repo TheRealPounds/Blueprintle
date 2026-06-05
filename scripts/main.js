@@ -284,9 +284,9 @@ if (mode === "bequest") {
 
 // Initializing dare mode
 const yesterdayFloorplans = [
-    floorplans[Math.floor(mulberry32(daysSinceLaunch + 12344)() * floorplans.length)].name,
-    floorplans[Math.floor(mulberry32(daysSinceLaunch + 69419)() * floorplans.length)].name,
-    floorplans[Math.floor(mulberry32(daysSinceLaunch + 123455)() * floorplans.length)].name
+    floorplans[Math.floor(mulberry32((mode === 'bequest' ? 0 : 17) + daysSinceLaunch + 12344)() * floorplans.length)].name,
+    floorplans[Math.floor(mulberry32((mode === 'bequest' ? -17 : 0) + daysSinceLaunch + 69419)() * floorplans.length)].name,
+    floorplans[Math.floor(mulberry32((mode === 'bequest' ? -17 : 0) + daysSinceLaunch + 123455)() * floorplans.length)].name
 ];
 const dareHashGenerator = mulberry32(endless ? Math.random() * 1000000 : daysSinceLaunch);
 const dares = [
